@@ -372,7 +372,7 @@ professionisti e degli altri enti di diritto privato non tenuti all’iscrizione
 ### UC001 - notifica richiesta elezione domicilio digitale di un CITTADINO x PEC
 **Il presente use case è di interesse per ANPR e AppIO.**
 
-Si assume che ANPR/AppIO abbiamo dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
+Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
 - cognome, ottenuti dall'autenticazione 
 - codice fiscale, ottenuti dall'autenticazione. 
@@ -415,7 +415,7 @@ Il [sequence-diagram](mermind/UC001.md) sintetizza il presente Use Case.
 ### UC002 - notifica richiesta modifica domicilio digitaledi un CITTADINO x PEC
 **Il presente use case è di interesse per ANPR e AppIO.**
 
-Si assume che ANPR/AppIO abbiamo dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
+Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
 - cognome, ottenuti dall'autenticazione 
 - codice fiscale, ottenuti dall'autenticazione. 
@@ -462,7 +462,7 @@ Il [sequence-diagram](mermind/UC003.md) sintetizza il presente Use Case.
 ### UC004 - notifica richiesta cessazione volontaria domicilio digitale di un CITTADINO x PEC
 **Il presente use case è di interesse per ANPR e AppIO.**
 
-Si assume che ANPR/AppIO abbiamo dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
+Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
 - cognome, ottenuti dall'autenticazione 
 - codice fiscale, ottenuti dall'autenticazione. 
@@ -594,14 +594,14 @@ Il [sequence-diagram](mermind/UC007.md) sintetizza il presente Use Case.
 ### UC008 - inoltro email di contatto
 **Il presente use case è di interesse per ANPR e AppIO.**
 
-Si assume che AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
+Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
 - cognome, ottenuti dall'autenticazione 
 - codice fiscale, ottenuti dall'autenticazione. 
 
 Il presente Use Case prevede:
 
-1. AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check
+1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check
 
 *se lo STATE del CITTADINO è citizenNotPresent allora:*
 
@@ -662,9 +662,7 @@ Il presente Use Case prevede:
 
 2. INAD conserva l'elenco delle variazioni
 
-3. ANPR/AppIO recuperano l'elenco delle variazioni utilizzando la API changed_digital_addresses
-
-4. INAD elimina l'elenco delle variazioni
+3. ANPR/AppIO recuperano l'elenco delle variazioni utilizzando la API changed_digital_addresses (dopo le 2.00 di ogni giorno)
 
 N.b. INAD assicura:
 
@@ -681,7 +679,7 @@ Si assume che ANPR abbia l'esigenza di effettuare il setting dei domicili digita
 
 Il presente Use Case prevede:
 
-1. ANPR/AppIO recuperano l'elenco dei domicili digitali eletti utilizzando la API sync_digital_addresses
+1. ANPR recuperano l'elenco dei domicili digitali eletti utilizzando la API sync_digital_addresses
 
 Il [sequence-diagram](mermind/UC012.md) sintetizza il presente Use Case.
 
@@ -704,6 +702,19 @@ Il presente Use Case prevede:
 3. AppIO recupera il domicilio digitale del cittadino utilizzando la API digital_address
 
 4. AppIO informa il CITTADINO della circostanza
+
+*se lo STATE del CITTADINO è citizenNotPresent allora:*
+
+1. AppIO informa il CITTADINO della circostanza
+
+*se lo STATE del CITTADINO è digitalDomicileNotPresent allora:*
+
+1. AppIO informa il CITTADINO della circostanza
+
+*se lo STATE del CITTADINO è inCharge OR confirmationRequestSent OR awaitingPublication allora:*
+
+1. AppIO informa il CITTADINO della circostanza
+
 
 Il [sequence-diagram](mermind/UC013.md) sintetizza il presente Use Case.
 
