@@ -6,6 +6,9 @@
   una le persone fisiche che abbiano compiuto il diciottesimo anno di età e che abbiano la capacità di agire
 - **domicilio digitale**:
   allo stato PEC o AppIOPEC, andranno inclusi i sistemi di notifica certificati ai sensi del eIDASR
+
+  > *IMPORTANT: l'utilizzo di AppIOPEC  è condizionata alla verifica legal dei presupposti della stessa*
+
 - **eIDASR**:
   [regolamento (ue) n. 910/2014 del parlamento europeo e del consiglio][1]
 - **LG INAD**:
@@ -44,6 +47,8 @@ professionisti e degli altri enti di diritto privato non tenuti all’iscrizione
 >>
 >> - PEC, type mailbox conforme a rfc5321
 >> - AppIOPEC, type mailbox conforme a rfc5321
+>
+> *IMPORTANT: l'utilizzo di AppIOPEC  è condizionata alla verifica legal dei presupposti della stessa*
 >
 >> **for:**
 >> INAD
@@ -274,6 +279,8 @@ professionisti e degli altri enti di diritto privato non tenuti all’iscrizione
 >  ***FR.016***
 >> **name:**
 >> inoltro richiesta elezione, modifica, cessazione volontaria x AppIOPEC
+> 
+> *IMPORTANT: l'utilizzo di AppIOPEC  è condizionata alla verifica legal dei presupposti della stessa*
 >
 >> **description:**
 >> 
@@ -496,6 +503,8 @@ Il [sequence-diagram](mermind/UC004.md) sintetizza il presente Use Case.
 ### UC005 - notifica richiesta elezione domicilio digitale di un CITTADINO x AppIOPEC
 **Il presente use case è di interesse per AppIO.**
 
+> *IMPORTANT: l'applicazione del presente use case è condizionata alla verifica legal dei presupposti per AppIOPEC*
+
 Si assume che AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
 - cognome, ottenuti dall'autenticazione 
@@ -537,6 +546,8 @@ Il [sequence-diagram](mermind/UC005.md) sintetizza il presente Use Case.
 
 ### UC006 - notifica richiesta modifica domicilio digitale di un CITTADINO x AppIOPEC
 **Il presente use case è di interesse per ANPR e AppIO.**
+
+> *IMPORTANT: l'applicazione del presente use case è condizionata alla verifica legal dei presupposti per AppIOPEC e dal riscontro della possibilità di modificare l'AppIOPEC assegnata ad un CITTADINO*
 
 Si assume che AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
 - nome, ottenuti dall'autenticazione 
@@ -591,7 +602,7 @@ Si assume che a seguito di una richiesta di elezione, modifica o cancellazione v
 
 Il [sequence-diagram](mermind/UC007.md) sintetizza il presente Use Case.
 
-### UC008 - inoltro email di contatto
+### UC008 - inoltro aggiornamento email di contatto
 **Il presente use case è di interesse per ANPR e AppIO.**
 
 Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO e recuperato per lo stesso i seguenti attributi:
