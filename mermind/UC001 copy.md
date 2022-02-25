@@ -21,7 +21,7 @@ sequenceDiagram
   else alt se STATE = digitalDomicileNotPresent 
     A ->> C: require PEC
     C -->> A: PEC
-    A ->> I: citizen_request_notification(election, CF, PEC)
+    A ->> I: citizen_request_notification(election, PEC)
     I -->> A: (request_code, STATE = inCharge)
     A -) C: info election started
 
