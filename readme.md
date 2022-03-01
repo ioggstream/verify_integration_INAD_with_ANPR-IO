@@ -175,8 +175,8 @@ professionisti e degli altri enti di diritto privato non tenuti all’iscrizione
 >> - citizenNotPresent, il CITTADINO non risulta registrato in INAD
 >> - digitalDomicileNotPresent, il CITTADINO è registrato in INAD ma il domicilio digitale non è stato eletto
 >> - inCharge, il CITTADINO è registrato in INAD e risulta l'avvio di una richiesta
+>> - verify, il CITTADINO è registrato con una richiesta in verifica
 >> - confirmationRequestSent, il CITTADINO è registrato in INAD ed è stata mandata conferma della richiesta alla PEC o email di contatto del CITTADINO
->> - inInvestigation, il CITTADINO è registrato con una richiesta in verifica
 >> - awaitingPublication, il CITTADINO è registrato con una richiesta in attesa di pubblicazione
 >> - digitalDomicilePresent, il CITTADINO è registrato e il domicilio digitale è stato eletto
 >
@@ -388,7 +388,7 @@ Il presente Use Case prevede:
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è inCharge OR confirmationRequestSent OR awaitingPublication allora:*
+*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -428,7 +428,7 @@ Il presente Use Case prevede:
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è inCharge OR confirmationRequestSent OR awaitingPublication allora:*
+*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -462,7 +462,7 @@ Il presente Use Case prevede:
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATO del CITTADINO è inCharge OR confirmationRequestSent OR awaitingPublication allora:*
+*se lo STATO del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -500,7 +500,7 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
     awaitingPublication --> digitalDomicileNotPresent: pubblicazione variazione domicilio digitale per cancellazione volontaria
 ```
 
-1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_requests inoltrando il codice fiscale, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato e il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent
+1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_requests inoltrando il codice fiscale, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato e il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -628,7 +628,7 @@ Il presente Use Case prevede:
 
 1. AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è inCharge OR confirmationRequestSent OR awaitingPublication allora:*
+*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
 
 1. AppIO informa il CITTADINO della circostanza
 
@@ -648,7 +648,7 @@ Il presente Use Case prevede:
 
 2. AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è digitalDomicileNotPresent OR inCharge OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent allora:*
+*altrimenti*
 
 2. AppIO notifica la rinuncia del CITTADINO utilizzando AppIO_abandonment inoltrando il codice fiscale
 
@@ -662,8 +662,8 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
  >>   - citizenNotPresent
  >>   - digitalDomicileNotPresent
  >>   - inCharge
+ >>   - verify
  >>   - confirmationRequestSent
- >>   - inInvestigation
  >>   - awaitingPublication
  >>   - digitalDomicilePresent
 
