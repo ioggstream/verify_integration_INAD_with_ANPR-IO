@@ -369,7 +369,7 @@ Il presente Use Case prevede:
 
 *se lo STATE del CITTADINO è citizenNotPresent allora:*
 
-2. ANPR/AppIO richiede al CITTADINO: 
+2. ANPR/AppIO presenta informativa INAD per registrazione al CITTADINO e gli richiede: 
 
   - email di contatto
   - PEC da eleggere come domicilio digitale
@@ -481,19 +481,19 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
 
     digitalDomicileNotPresent --> inCharge: richiesta elezione, modifica o cancellazione volontaria
 
-    inCharge --> confirmationRequestSent: inoltro a cittadino conferma richiesta
+    inCharge --> verify: avvio verifica
 
-    confirmationRequestSent --> inInvestigation: conferma elezione, modifica o cancellazione volontaria 
+    verify --> confirmationRequestSent: OK verifica e inoltro a cittadino conferma richiesta
+
+    verify --> digitalDomicilePresent: KO verifica per modifica
+
+    verify --> digitalDomicileNotPresent: KO verifica per elezione   
+
+    confirmationRequestSent --> awaitingPublication: conferma elezione, modifica o cancellazione volontaria 
 
     confirmationRequestSent --> digitalDomicileNotPresent: annulamento elezione
 
     confirmationRequestSent --> digitalDomicilePresent: annulamento modifica o cancellazione volontaria
-    
-    inInvestigation --> awaitingPublication: verifica OK
-
-    inInvestigation --> digitalDomicileNotPresent: verifica KO per elezione
-
-    inInvestigation --> digitalDomicilePresent: verifica KO per modifica
 
     awaitingPublication --> digitalDomicilePresent: pubblicazione variazione domicilio digitale per elezione o modifica
     
@@ -655,19 +655,133 @@ Il presente Use Case prevede:
 Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 
 ## Data Model
-[TODO]
+ > citizen_status
+ >> string 
+ >
+ >> enum
+ >>   - citizenNotPresent
+ >>   - digitalDomicileNotPresent
+ >>   - inCharge
+ >>   - confirmationRequestSent
+ >>   - inInvestigation
+ >>   - awaitingPublication
+ >>   - digitalDomicilePresent
+
+ >  operation
+ >>   string
+ >
+ >>   enum
+ >>   - registration&insert
+ >>   - insert
+ >>   - update
+ >>   - delete
+
+  > codice_fiscale
+  >>  string
+  >
+  >>  pattern = /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
+
+  > name
+  >>  string
+
+  > surname
+  >>  string
+
+  > email
+  >>  string
+  >
+  >>  pattern = ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+
+  > email_contatto
+  >>  email
+
+  > digital_address
+  >>  email
+
+  > request_code
+  >>  string
+  >
+  >>  pattern = (ANPR|APPIO)_<progressive>
+
+  > list_changed_digital_address
+  >>  object
+  >>    - codice_fiscale
+  >>    - digital_address
+  >>    - action = (insert|update|delete)
+
+  > list_digital_address
+  >>  object
+  >>    - codice_fiscale
+  >>    - digital_address
 
 ## API REST
-[TODO]
+
 
 ### API implementate da INAD
-[TODO]
+
+#### for ANPR
+> required for UC001, UC002, UC004, UC008, UC013, UC014
+>>citizen_status:citizen_status_check (codice_fiscale)
+
+> required for UC001
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
+
+> required for UC001 
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=insert,codice_fiscale, digital_address)
+
+> required for UC002 
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=update,codice_fiscale, digital_address)
+
+> required for UC004 
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=delete,codice_fiscale)  
+
+> required for UC008 
+>> ack=citizen_changed_email(codice_fiscale,email_contatto)  
+
+>required for UC008 
+>> list_changed_digital_address=changed_digital_addresses(date)  
+
+> required for UC010 
+>> ack=death_notification(codice_fiscale,list_changed_digital_address)
+
+> required for UC012 
+>> list_digital_address=sync_digital_addresses()
+
+#### for APPIO
+> required for UC001, UC002, UC004, UC008, UC013, UC014 
+>> citizen_status:citizen_status_check (codice_fiscale)
+
+> required for UC001 
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
+
+> required for UC001 
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=insert,codice_fiscale, digital_address)
+
+> required for UC002
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=update,codice_fiscale, digital_address)
+
+> required for UC004
+>> citizen_status=inCharge, request_code :citizen_request_notification(operation=delete,codice_fiscale)  
+
+> required for UC008 
+>> ack=citizen_changed_email(codice_fiscale,email_contatto)  
+
+> required for UC008 
+>> list_changed_digital_address=changed_digital_addresses(date)
+
+> required for UC013 
+>> digital_address=digital_address(codice_fiscale)
+
+> required for UC014
+>> ack=AppIO_abandonment(codice_fiscale) 
 
 ### API implementate da AppIO/ANPR
-[TODO]
 
-### API implementate da ANPR
-[TODO]
+> required for UC007 
+>> ack=receive_status_requests(codice_fiscale, request_code, citizen_status)
 
-### API implementate da AppIO
-[TODO]
+> required for UC009
+>> ack=citizen_changed_email(codice_fiscale,email_contatto)
+
+> required for UC011  
+>> ack=event_changed_digital_addresses(date,list_changed_digital_address)
