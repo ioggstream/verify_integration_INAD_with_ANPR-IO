@@ -479,7 +479,9 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
   stateDiagram-v2
     citizenNotPresent --> digitalDomicileNotPresent: registrazione cittadino  
 
-    digitalDomicileNotPresent --> inCharge: richiesta elezione, modifica o cancellazione volontaria
+    digitalDomicileNotPresent --> inCharge: richiesta elezione
+
+    digitalDomicilePresent --> inCharge: modifica o cancellazione volontaria
 
     inCharge --> verify: avvio verifica
 
