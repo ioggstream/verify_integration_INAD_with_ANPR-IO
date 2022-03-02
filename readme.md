@@ -500,7 +500,7 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
     awaitingPublication --> digitalDomicileNotPresent: pubblicazione variazione domicilio digitale per cancellazione volontaria
 ```
 
-1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_requests inoltrando il codice fiscale, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato e il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent
+1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato e il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -778,7 +778,7 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 ### API implementate da AppIO/ANPR
 
 > required for UC007 
->> ack=receive_status_requests(codice_fiscale, request_code, citizen_status)
+>> ack=receive_status_change(codice_fiscale, request_code, citizen_status)
 
 > required for UC009
 >> ack=citizen_changed_email(codice_fiscale,email_contatto)
