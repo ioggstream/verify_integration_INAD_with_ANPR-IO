@@ -481,7 +481,7 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
 
     digitalDomicileNotPresent --> inCharge: richiesta elezione
 
-    digitalDomicilePresent --> inCharge: modifica o cancellazione volontaria
+    digitalDomicilePresent --> inCharge: modifica o cancellazione volontaria    
 
     inCharge --> verify: avvio verifica
 
@@ -500,9 +500,15 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
     awaitingPublication --> digitalDomicilePresent: pubblicazione variazione domicilio digitale per elezione o modifica
     
     awaitingPublication --> digitalDomicileNotPresent: pubblicazione variazione domicilio digitale per cancellazione volontaria
+
+    digitalDomicilePresent --> digitalDomicileNotPresent: CANCELLAZIONE D'UFFICIO
+
+    digitalDomicilePresent --> citizenNotPresent: CANCELLAZIONE IN CASI PARTICOLARI
+
+    digitalDomicileNotPresent --> citizenNotPresent: CANCELLAZIONE IN CASI PARTICOLARI
 ```
 
-1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato e il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent
+1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale del CITTADINO interessato, request_code assegnato da INAD se presente, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato, il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent e la motivazione che ha determinato il cambio di stato
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -669,6 +675,31 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
  >>   - awaitingPublication
  >>   - digitalDomicilePresent
 
+ > citizen_change_status_reason
+ >> string 
+ >
+ >> enum
+ >>   - citizenRegistration
+ >>   - electionRequest
+ >>   - changeRequest
+ >>   - voluntaryCancellationRequest
+ >>   - startVerification
+ >>   - OKVerificationForElection
+ >>   - OKVerificationForChange
+ >>   - KOVerificationForElection
+ >>   - KOVerificationForChange
+ >>   - electionConfirmed
+ >>   - changeConfirmed
+ >>   - voluntaryCancellationConfirmed
+ >>   - electionAbolition
+ >>   - changeAbolition
+ >>   - voluntaryAbolition
+ >>   - electionPubblished
+ >>   - changePubblished
+ >>   - voluntaryPubblished
+ >>   - officeCancellation
+ >>   - specialCaseCancellation
+
  >  operation
  >>   string
  >
@@ -780,7 +811,7 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 ### API implementate da AppIO/ANPR
 
 > required for UC007 
->> ack=receive_status_change(codice_fiscale, request_code, citizen_status)
+>> ack=receive_status_change(codice_fiscale, request_code, citizen_status, citizen_change_status_reason)
 
 > required for UC009
 >> ack=citizen_changed_email(codice_fiscale,email_contatto)
