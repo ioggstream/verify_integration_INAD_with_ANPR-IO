@@ -190,71 +190,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errore'
 
-  /{codice_fiscale}/death_notification:
-    put:
-      description: notifica di decesso del CITTADINO
-
-      parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
-          schema:  
-            $ref: '#/components/schemas/Codice_Fiscale'        
-
-      responses:
-        '200':
-            description: riscontro sullo stato del CITTADINO          
-            content:
-              application/json:
-                schema: 
-                  $ref: '#/components/schemas/ACK'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '404':
-          description: NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-
-  /changed_digital_addresses:
+  /recovers_changed_digital_addresses:
     get:
-      description: recupera variazioni domicili digitali ad una specifica data
+      description: recupera variazioni domicili digitali digitali ad uno specifico giorno
 
       parameters:
-        - name: date
+        - name: day
           in: query
           required: true
           description: data di riferimento delle variazioni dei domicili digitali richieste
+          schema:
+            type: string
+            format: data
 
       responses:
         '200':
@@ -336,6 +283,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errore'
   
+  /{codice_fiscale}/death_notification:
+    put:
+      description: notifica di decesso del CITTADINO
+
+      parameters:
+        - name: codice_fiscale
+          in: path
+          required: true
+          description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
+          schema:  
+            $ref: '#/components/schemas/Codice_Fiscale'        
+
+      responses:
+        '200':
+            description: riscontro sullo stato del CITTADINO          
+            content:
+              application/json:
+                schema: 
+                  $ref: '#/components/schemas/ACK'
+        '400':
+          description: BAD_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'
+        '401':
+          description: UNAUTHORIZED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'
+        '403':
+          description: FORBIDDEN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'
+        '404':
+          description: NOT_FOUND
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'        
+        '500':
+          description: INTERNAL_SERVER_ERROR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'
+        '503':
+          description: SERVICE_UNAVAILABLE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errore'
 
 components:
   schemas:

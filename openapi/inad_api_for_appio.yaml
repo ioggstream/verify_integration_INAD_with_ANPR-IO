@@ -302,15 +302,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errore'
 
-  /changed_digital_addresses:
+  /recovers_changed_digital_addresses:
     get:
-      description: recupera variazioni domicili digitali ad una specifica data
+      description: recupera variazioni domicili digitali ad uno specifico giorno
 
       parameters:
-        - name: date
+        - name: day
           in: query
           required: true
           description: data di riferimento delle variazioni dei domicili digitali richieste
+          schema: 
+            type: string
+            format: data
 
       responses:
         '200':

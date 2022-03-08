@@ -82,7 +82,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errore'
 
-  /{codice_fiscale}/changed_email:
+  /{codice_fiscale}/receive_changed_email:
     put:
       description: ricevi cambiamento email di contantto di un CITTADINO
 
@@ -138,7 +138,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errore'
 
-  /changed_digital_addresses:
+  /receive_changed_digital_addresses:
     put:
       description: ricevi variazioni di domicili digitali delle ultime 24h
 
