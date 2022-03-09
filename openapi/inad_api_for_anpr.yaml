@@ -372,6 +372,7 @@ components:
         - verify
         - confirmationRequestSent
         - awaitingPublication
+        - waitingOfficeCancellation
         - digitalDomicilePresent
 
     Operation:

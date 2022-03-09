@@ -406,7 +406,7 @@ Il presente Use Case prevede:
 
 1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
-*se lo STATE del CITTADINO è digitalDomicilePresent allora:*
+*se lo STATE del CITTADINO è digitalDomicilePresent OR waitingOfficeCancellation allora:*
 
 2. ANPR/AppIO richiede al CITTADINO: 
 
@@ -483,11 +483,13 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
 
     awaitingPublication --> digitalDomicilePresent: electionPubblished OR changePubblished
 
-    awaitingPublication --> digitalDomicileNotPresent: voluntaryCancellationPubblished
+    awaitingPublication --> digitalDomicileNotPresent: voluntaryCancellationPubblished OR officeCancellationPubblished
 
     digitalDomicilePresent --> waitingOfficeCancellation: officeCancellation
 
-    waitingOfficeCancellation --> digitalDomicileNotPresent: after30dd
+    waitingOfficeCancellation --> awaitingPublication: after30dd
+
+    waitingOfficeCancellation --> awaitingPublication: changeRequest 
 
     digitalDomicilePresent --> citizenNotPresent: specialCaseCancellation
 
@@ -497,6 +499,8 @@ Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
 1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale del CITTADINO interessato, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO, il nuovo stato del CITTADINO (vedi vertices dello state diagram precedente) e la motivazione che ha determinato il cambio di stato (vedi edges dello state diagram precedente)
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
+
+N.b. INAD non notifica gli effetti della pubblicazione (awaitingPublication - electionPubblished OR changePubblished -> digitalDomicilePresent e awaitingPublication - voluntaryCancellationPubblished OR officeCancellation -> digitalDomicileNotPresent) in quanto gli le evidenze degli stessi sono ottenute da ANPR e AppIO dall'applicazione del UC0011.
 
 Il [sequence-diagram](mermind/UC007.md) sintetizza il presente Use Case.
 
@@ -554,6 +558,7 @@ Il presente Use Case prevede:
 
 Il [sequence-diagram](mermind/UC010.md) sintetizza il presente Use Case.
 
+
 ### UC011 - notifica variazioni dei domicili digitali pubblicati
 **Il presente use case è di interesse per ANPR e AppIO.**
 
@@ -580,6 +585,10 @@ N.b. INAD assicura:
 - l'inoltro ad AppIO dei soli domicili digitali per cui il CITTADINO ha esegueto almeno un'azione di elezione, modifica cancellazione volontaria tramite AppIO o recuperati dalla stessa AppIO su consenso del CITTADINO 
 
 - la disponibilità dell'elenco delle variazioni per 5gg superato il quale ANPR/AppIO applicano UC012.
+
+- la notifica di una insert o update del domicilio digitale di un CITTADINO comporta l'implicita variazione di stato a digitalDomicilePresent
+
+- la notifica di una deleted del domicilio digitale di un CITTADINO comporta l'implicita variazione di stato a digitalDomicileNotPresent
 
 Il [sequence-diagram](mermind/UC011.md) sintetizza il presente Use Case.
 
@@ -675,6 +684,7 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
  >>   - electionPubblished
  >>   - changePubblished
  >>   - voluntaryCancellationPubblished
+ >>   - officeCancellationPubblished
  >>   - officeCancellation
  >>   - after30dd
  >>   - specialCaseCancellation

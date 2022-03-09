@@ -219,6 +219,7 @@ components:
         - verify
         - confirmationRequestSent
         - awaitingPublication
+        - waitingOfficeCancellation
         - digitalDomicilePresent
     
     Email:
@@ -251,14 +252,15 @@ components:
         - KOVerificationForChange
         - electionConfirmed
         - changeConfirmed
-        - voluntaryCancellationConfirmed
+        - after90dd
         - electionAbolition
         - changeAbolition
-        - voluntaryCancellationAbolition
         - electionPubblished
         - changePubblished
         - voluntaryCancellationPubblished
+        - officeCancellationPubblished
         - officeCancellation
+        - after30dd
         - specialCaseCancellation
 
     List_Changed_Digital_Address:
