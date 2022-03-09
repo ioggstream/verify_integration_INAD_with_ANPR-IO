@@ -142,7 +142,7 @@ paths:
         - name: email
           in: query
           required: true
-          description: nuova e,ail di contatto del CITTADINO
+          description: nuova email di contatto del CITTADINO
           schema:  
             $ref: '#/components/schemas/Email'
 

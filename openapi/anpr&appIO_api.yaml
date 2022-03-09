@@ -38,7 +38,7 @@ paths:
           description: motivazione del cambiamento di stato del CITTADINO
           schema:
             $ref: '#/components/schemas/Citizen_Change_Status_Reason'
-        - name: request_vode
+        - name: request_code
           in: query
           description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
           schema: 
