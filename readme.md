@@ -365,7 +365,7 @@ Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO, ne
 
 Il presente Use Case prevede:
 
-1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
 *se lo STATE del CITTADINO è citizenNotPresent allora:*
 
@@ -374,7 +374,7 @@ Il presente Use Case prevede:
   - email di contatto
   - PEC da eleggere come domicilio digitale
 
-3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API citizen_request_notification inoltrando codice fiscale, nome, cognome, email di contatto e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
+3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API request_action inoltrando codice fiscale, nome, cognome, email di contatto e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -384,15 +384,11 @@ Il presente Use Case prevede:
 
   - PEC da eleggere come domicilio digitale
 
-3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API citizen_request_notification inoltrando codice fiscale e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge 
+3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API request_action inoltrando codice fiscale e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge 
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
-
-2. ANPR/AppIO informa il CITTADINO della circostanza
-
-*se lo STATE del CITTADINO è digitalDomicilePresent:*
+*altrimenti:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -408,27 +404,19 @@ Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO, ne
 
 Il presente Use Case prevede:
 
-1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
-*se lo STATE del CITTADINO è digitalDomicilePresent allora:*
+*se lo STATE del CITTADINO è digitalDomicilePresent OR waitingOfficeCancellation allora:*
 
 2. ANPR/AppIO richiede al CITTADINO: 
 
   - PEC da eleggere come domicilio digitale
 
-3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API citizen_request_notification inoltrando codice fiscale e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
+3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API request_action inoltrando codice fiscale e PEC ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è citizenNotPresent allora:*
-
-2. ANPR/AppIO informa il CITTADINO della circostanza
-
-*se lo STATE del CITTADINO è digitalDomicileNotPresent allora:*
-
-2. ANPR/AppIO informa il CITTADINO della circostanza
-
-*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
+*altrimenti:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -444,25 +432,17 @@ Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO, ne
 
 Il presente Use Case prevede:
 
-1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
 *se lo STATO del CITTADINO è digitalDomicilePresent allora:*
 
 2. ANPR/AppIO richiede al CITTADINO la volontà di cessare il proprio domicilio infomando che l'effetto della stessa richiesta avverrà dopo 90gg
 
-3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API citizen_request_notification inoltrando codice fiscale ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
+3. ANPR/AppIO notifica ad INAD la richiesta utilizzando la API request_action inoltrando codice fiscale ed ottenendo come risposta il request_code assegnato da INAD e il nuovo stato del CITTADINO uguale a inCharge
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
-*se lo STATO del CITTADINO è citizenNotPresent allora:*
-
-2. ANPR/AppIO informa il CITTADINO della circostanza
-
-*se lo STATO del CITTADINO è digitalDomicileNotPresent allora:*
-
-2. ANPR/AppIO informa il CITTADINO della circostanza
-
-*se lo STATO del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
+*altrimenti:*
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -471,46 +451,56 @@ Il [sequence-diagram](mermind/UC004.md) sintetizza il presente Use Case.
 ### UC007 - notifica cambio di stato del CITTADINO
 **Il presente use case è di interesse per ANPR e AppIO.**
 
-Si assume che a seguito di una richiesta di elezione, modifica o cancellazione volontaria del domicilio digitale di un CITTADINO notifica da ANRP/AppIO sia avvenuto un cambio di stato.
+Si assume che sia avvenuto un cambio di stato di un CITTADINO in INAD.
 
 Il seguente state diagram descrive le variazioni di stato gestiti da INAD.
 
 ```mermaid
   stateDiagram-v2
-    citizenNotPresent --> digitalDomicileNotPresent: registrazione cittadino  
+    citizenNotPresent --> digitalDomicileNotPresent: citizenRegistration  
 
-    digitalDomicileNotPresent --> inCharge: richiesta elezione
+    digitalDomicileNotPresent --> inCharge: electionRequest
 
-    digitalDomicilePresent --> inCharge: modifica o cancellazione volontaria    
+    digitalDomicilePresent --> inCharge: changeRequest 
 
-    inCharge --> verify: avvio verifica
+    digitalDomicilePresent --> waitingVoluntaryCancellation: voluntaryCancellationRequest
 
-    verify --> confirmationRequestSent: OK verifica e inoltro a cittadino conferma richiesta
+    inCharge --> verify: startVerification
 
-    verify --> digitalDomicilePresent: KO verifica per modifica
+    verify --> confirmationRequestSent: OKVerificationForElection OR OKVerificationForChange    
 
-    verify --> digitalDomicileNotPresent: KO verifica per elezione   
+    verify --> digitalDomicileNotPresent: KOVerificationForElection 
 
-    confirmationRequestSent --> awaitingPublication: conferma elezione, modifica o cancellazione volontaria 
+    verify --> digitalDomicilePresent: KOVerificationForChange
 
-    confirmationRequestSent --> digitalDomicileNotPresent: annulamento elezione
+    confirmationRequestSent --> awaitingPublication: electionConfirmed OR changeConfirmed
 
-    confirmationRequestSent --> digitalDomicilePresent: annulamento modifica o cancellazione volontaria
+    confirmationRequestSent --> digitalDomicileNotPresent: electionAbolition
 
-    awaitingPublication --> digitalDomicilePresent: pubblicazione variazione domicilio digitale per elezione o modifica
-    
-    awaitingPublication --> digitalDomicileNotPresent: pubblicazione variazione domicilio digitale per cancellazione volontaria
+    confirmationRequestSent --> digitalDomicilePresent: changeAbolition
 
-    digitalDomicilePresent --> digitalDomicileNotPresent: CANCELLAZIONE D'UFFICIO
+    waitingVoluntaryCancellation --> awaitingPublication: after90dd
 
-    digitalDomicilePresent --> citizenNotPresent: CANCELLAZIONE IN CASI PARTICOLARI
+    awaitingPublication --> digitalDomicilePresent: electionPubblished OR changePubblished
 
-    digitalDomicileNotPresent --> citizenNotPresent: CANCELLAZIONE IN CASI PARTICOLARI
+    awaitingPublication --> digitalDomicileNotPresent: voluntaryCancellationPubblished OR officeCancellationPubblished
+
+    digitalDomicilePresent --> waitingOfficeCancellation: officeCancellation
+
+    waitingOfficeCancellation --> awaitingPublication: after30dd
+
+    waitingOfficeCancellation --> awaitingPublication: changeRequest 
+
+    digitalDomicilePresent --> citizenNotPresent: specialCaseCancellation
+
+    digitalDomicileNotPresent --> citizenNotPresent: specialCaseCancellation
 ```
 
-1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale del CITTADINO interessato, request_code assegnato da INAD se presente, il riferimento a INAD, ANPR o AppIO per cui lo stesso è stato generato, il nuovo stato del CITTADINO uguale a digitalDomicileNotPresent OR inCharge OR verify OR confirmationRequestSent OR awaitingPublication OR digitalDomicilePresent e la motivazione che ha determinato il cambio di stato
+1. INAD notifica a ANPR/AppIO il cambio di stato utilizzando la API receive_status_change inoltrando il codice fiscale del CITTADINO interessato, request_code assegnato da INAD, il riferimento a INAD, ANPR o AppIO, il nuovo stato del CITTADINO (vedi vertices dello state diagram precedente) e la motivazione che ha determinato il cambio di stato (vedi edges dello state diagram precedente)
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
+
+N.b. INAD non notifica gli effetti della pubblicazione (awaitingPublication - electionPubblished OR changePubblished -> digitalDomicilePresent e awaitingPublication - voluntaryCancellationPubblished OR officeCancellation -> digitalDomicileNotPresent) in quanto gli le evidenze degli stessi sono ottenute da ANPR e AppIO dall'applicazione del UC0011.
 
 Il [sequence-diagram](mermind/UC007.md) sintetizza il presente Use Case.
 
@@ -524,7 +514,7 @@ Si assume che ANPR/AppIO abbia dato seguito all'autenticazione del CITTADINO, ne
 
 Il presente Use Case prevede:
 
-1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. ANPR/AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
 *se lo STATE del CITTADINO è citizenNotPresent allora:*
 
@@ -536,7 +526,7 @@ Il presente Use Case prevede:
 
   - email di contatto 
 
-3. ANPR/AppIO notifica ad INAD la nuova email di contatto utilizzando la API citizen_changed_email inoltrando codice fiscale e email di contatto
+3. ANPR/AppIO notifica ad INAD la nuova email di contatto utilizzando la API changed_email inoltrando codice fiscale e email di contatto
 
 4. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -549,7 +539,7 @@ Si assume che la email di contatto del CITTADINO sia stata modificata.
 
 Il presente Use Case prevede:
 
-1. INAD notifica ad ANPR/AppIO la nuova email di contatto utilizzando la API citizen_changed_email inoltrando codice fiscale e email di contatto
+1. INAD notifica ad ANPR/AppIO la nuova email di contatto utilizzando la API changed_email inoltrando codice fiscale e email di contatto
 
 2. ANPR/AppIO informa il CITTADINO della circostanza
 
@@ -568,6 +558,7 @@ Il presente Use Case prevede:
 
 Il [sequence-diagram](mermind/UC010.md) sintetizza il presente Use Case.
 
+
 ### UC011 - notifica variazioni dei domicili digitali pubblicati
 **Il presente use case è di interesse per ANPR e AppIO.**
 
@@ -575,7 +566,7 @@ Si assume la conclusione del task di pubblicazione realizzato da INAD entro le o
 
 Il presente Use Case prevede:
 
-1. INAD notifica ad ANPR/AppIO le variazioni dei domicili digitali pubblicati utilizzando la API event_changed_digital_addresses inoltrando la data di riferimento e l'elenco dei domicili variati (insert, update, deleted)
+1. INAD notifica ad ANPR/AppIO le variazioni dei domicili digitali pubblicati utilizzando la API receive_changed_digital_addresses inoltrando la data di riferimento e l'elenco dei domicili variati (insert, update, deleted)
 
 N.b. INAD assicura inoltro anche in assenza di variazioni
 
@@ -587,13 +578,17 @@ N.b. INAD assicura inoltro anche in assenza di variazioni
 
 2. INAD conserva l'elenco delle variazioni relativamente all'attuale giorno
 
-3. ANPR/AppIO recuperano l'elenco delle variazioni utilizzando la API changed_digital_addresses (dopo le 2.00 di ogni giorno) per il giorno di interesse
+3. ANPR/AppIO recuperano l'elenco delle variazioni utilizzando la API recovers_changed_digital_addresses (dopo le 2.00 di ogni giorno) per il giorno di interesse
 
 N.b. INAD assicura:
 
 - l'inoltro ad AppIO dei soli domicili digitali per cui il CITTADINO ha esegueto almeno un'azione di elezione, modifica cancellazione volontaria tramite AppIO o recuperati dalla stessa AppIO su consenso del CITTADINO 
 
 - la disponibilità dell'elenco delle variazioni per 5gg superato il quale ANPR/AppIO applicano UC012.
+
+- la notifica di una insert o update del domicilio digitale di un CITTADINO comporta l'implicita variazione di stato a digitalDomicilePresent
+
+- la notifica di una deleted del domicilio digitale di un CITTADINO comporta l'implicita variazione di stato a digitalDomicileNotPresent
 
 Il [sequence-diagram](mermind/UC011.md) sintetizza il presente Use Case.
 
@@ -618,7 +613,7 @@ Si assume che AppIO abbia dato seguito all'autenticazione del CITTADINO, nel ris
 
 Il presente Use Case prevede:
 
-1. AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
 *se lo STATE del CITTADINO è digitalDomicilePresent allora:*
 
@@ -628,18 +623,9 @@ Il presente Use Case prevede:
 
 4. AppIO informa il CITTADINO della circostanza
 
-*se lo STATE del CITTADINO è citizenNotPresent allora:*
+*altrimenti:*
 
-1. AppIO informa il CITTADINO della circostanza
-
-*se lo STATE del CITTADINO è digitalDomicileNotPresent allora:*
-
-1. AppIO informa il CITTADINO della circostanza
-
-*se lo STATE del CITTADINO è inCharge OR verify OR confirmationRequestSent OR awaitingPublication allora:*
-
-1. AppIO informa il CITTADINO della circostanza
-
+2. AppIO informa il CITTADINO della circostanza
 
 Il [sequence-diagram](mermind/UC013.md) sintetizza il presente Use Case.
 
@@ -650,15 +636,15 @@ Si assume che un cittadino abbia rinunciato all'utilizzo dell'AppIO.
 
 Il presente Use Case prevede:
 
-1. AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API citizen_status_check inoltrando il codice fiscale
+1. AppIO richiede ad INAD lo stato del CITTADINO utilizzando la API status_check inoltrando il codice fiscale
 
 *se lo STATE del CITTADINO è citizenNotPresent allora:*
 
 2. AppIO informa il CITTADINO della circostanza
 
-*altrimenti*
+*altrimenti:*
 
-2. AppIO notifica la rinuncia del CITTADINO utilizzando AppIO_abandonment inoltrando il codice fiscale
+2. AppIO notifica la rinuncia del CITTADINO utilizzando appIO_abandonment inoltrando il codice fiscale
 
 Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 
@@ -673,6 +659,8 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
  >>   - verify
  >>   - confirmationRequestSent
  >>   - awaitingPublication
+ >>   - waitingVoluntaryCancellation
+ >>   - waitingOfficeCancellation
  >>   - digitalDomicilePresent
 
  > citizen_change_status_reason
@@ -690,14 +678,15 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
  >>   - KOVerificationForChange
  >>   - electionConfirmed
  >>   - changeConfirmed
- >>   - voluntaryCancellationConfirmed
+ >>   - after90dd
  >>   - electionAbolition
  >>   - changeAbolition
- >>   - voluntaryAbolition
  >>   - electionPubblished
  >>   - changePubblished
- >>   - voluntaryPubblished
+ >>   - voluntaryCancellationPubblished
+ >>   - officeCancellationPubblished
  >>   - officeCancellation
+ >>   - after30dd
  >>   - specialCaseCancellation
 
  >  operation
@@ -754,59 +743,59 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 
 #### for ANPR
 > required for UC001, UC002, UC004, UC008, UC013, UC014
->>citizen_status:citizen_status_check (codice_fiscale)
+>>citizen_status:status_check (codice_fiscale)
 
 > required for UC001
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
 
 > required for UC001 
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=insert,codice_fiscale, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=insert,codice_fiscale, digital_address)
 
 > required for UC002 
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=update,codice_fiscale, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=update,codice_fiscale, digital_address)
 
 > required for UC004 
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=delete,codice_fiscale)  
+>> citizen_status=inCharge, request_code :request_action(operation=delete,codice_fiscale)  
 
 > required for UC008 
->> ack=citizen_changed_email(codice_fiscale,email_contatto)  
-
->required for UC008 
->> list_changed_digital_address=changed_digital_addresses(date)  
+>> ack=changed_email(codice_fiscale,email_contatto)  
 
 > required for UC010 
->> ack=death_notification(codice_fiscale,list_changed_digital_address)
+>> ack=death_notification(codice_fiscale)
+
+> required for UC011 
+>> list_changed_digital_address=recovers_changed_digital_addresses(day)
 
 > required for UC012 
 >> list_digital_address=sync_digital_addresses()
 
 #### for APPIO
 > required for UC001, UC002, UC004, UC008, UC013, UC014 
->> citizen_status:citizen_status_check (codice_fiscale)
+>> citizen_status:status_check (codice_fiscale)
 
 > required for UC001 
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=registration&insert,name, surname, codice_fiscale, email_contatto, digital_address)
 
 > required for UC001 
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=insert,codice_fiscale, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=insert,codice_fiscale, digital_address)
 
 > required for UC002
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=update,codice_fiscale, digital_address)
+>> citizen_status=inCharge, request_code :request_action(operation=update,codice_fiscale, digital_address)
 
 > required for UC004
->> citizen_status=inCharge, request_code :citizen_request_notification(operation=delete,codice_fiscale)  
+>> citizen_status=inCharge, request_code :request_action(operation=delete,codice_fiscale)  
 
 > required for UC008 
->> ack=citizen_changed_email(codice_fiscale,email_contatto)  
+>> ack=changed_email(codice_fiscale,email_contatto)  
 
-> required for UC008 
->> list_changed_digital_address=changed_digital_addresses(date)
+> required for UC011 
+>> list_changed_digital_address=recovers_changed_digital_addresses(day)
 
 > required for UC013 
 >> digital_address=digital_address(codice_fiscale)
 
 > required for UC014
->> ack=AppIO_abandonment(codice_fiscale) 
+>> ack=appIO_abandonment(codice_fiscale) 
 
 ### API implementate da AppIO/ANPR
 
@@ -814,7 +803,7 @@ Il [sequence-diagram](mermind/UC014.md) sintetizza il presente Use Case.
 >> ack=receive_status_change(codice_fiscale, request_code, citizen_status, citizen_change_status_reason)
 
 > required for UC009
->> ack=citizen_changed_email(codice_fiscale,email_contatto)
+>> ack=receive_changed_email(codice_fiscale,email_contatto)
 
 > required for UC011  
->> ack=event_changed_digital_addresses(date,list_changed_digital_address)
+>> ack=receive_changed_digital_addresses(list_changed_digital_address)
