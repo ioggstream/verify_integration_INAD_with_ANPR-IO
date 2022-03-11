@@ -2,7 +2,8 @@ openapi: 3.0.1
 info:
   title: ANPR/AppIO - Integrazione AppIO
   description: |-
-    API rese disponibili da ANPR/AppIO al Catalogo delle API previsto nel modello di interoperabilità delle pubbliche amministrazioni accessibile da INAD.
+    API rese disponibili da ANPR/AppIO al Catalogo delle API previsto nel modello di interoperabilità 
+    delle pubbliche amministrazioni accessibile da INAD.
   contact:
     name: AgID - Agenzia per l'Italia Digitale
     url: https://www.agid.gov.it/
@@ -10,96 +11,89 @@ info:
     name: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
   version: 1.0.0
+  termsOfService: https://www.agid.gov.it/
+  x-summary: Recupero informazioni su Domicilio Digitale
+
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
-  
+tags:
+  - name: cittadino
+    description: Informazioni sui cittadini
+    externalDocs:
+      description: API reference
+      url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO  
 paths:
   /{codice_fiscale}/receive_status_change:
-    put:
-      description: ricevi lo stato di un CITTADINO
-
+    get:
+      description: Ricevi lo stato di un CITTADINO
+      tags:
+      - cittadino
+      operationId: put_receive_status_change
       parameters:
         - name: codice_fiscale
           in: path
           required: true          
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
           schema: 
-            $ref: '#/components/schemas/Codice_Fiscale'
+            $ref: '#/components/schemas/CodiceFiscale'
         - name: citizen_status
           in: query
           required: true
           description: nuovo stato del CITTADINO
           schema:
-            $ref: '#/components/schemas/Citizen_Status'
+            $ref: '#/components/schemas/CitizenStatus'
         - name: change_status_reason
           in: query
           required: true
           description: motivazione del cambiamento di stato del CITTADINO
           schema:
-            $ref: '#/components/schemas/Citizen_Change_Status_Reason'
-        - name: request_code
+            $ref: '#/components/schemas/CitizenChangeStatusReason'
+        - name: RequestCode
           in: query
           description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
           schema: 
-            $ref: '#/components/schemas/Request_Code'
+            $ref: '#/components/schemas/RequestCode'
         
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ACK'
         '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/400'
         '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/401'
         '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
         '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/500'
         '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/503'
 
   /{codice_fiscale}/receive_changed_email:
     put:
-      description: ricevi cambiamento email di contantto di un CITTADINO
-
+      description: ricevi cambiamento email di contatto di un CITTADINO
+      operationId: put_receive_changed_email
+      tags:
+        - cittadino
       parameters:
         - name: codice_fiscale
           in: path
           required: true          
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
           schema: 
-            $ref: '#/components/schemas/Codice_Fiscale'
+            $ref: '#/components/schemas/CodiceFiscale'
         - name: email
           in: query
           required: true
           description: nuovo stato del CITTADINO
           schema:
             $ref: '#/components/schemas/Email'
-
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO          
@@ -108,46 +102,26 @@ paths:
               schema: 
                 $ref: '#/components/schemas/ACK'
         '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/400'
         '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/401'
         '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
         '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/500'
         '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/503'
 
-  /receive_changed_digital_addresses:
-    put:
+  /receive_changed_digita_addresses:
+    post:
       description: ricevi variazioni di domicili digitali delle ultime 24h
-
       requestBody:
         content:          
           application/json:
             schema:
-              $ref: '#/components/schemas/List_Changed_Digital_Address'
-
+              $ref: '#/components/schemas/List_Changed_DigitalAddress'
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO          
@@ -156,61 +130,44 @@ paths:
               schema: 
                 $ref: '#/components/schemas/ACK'
         '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/400'
         '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/401'
         '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
         '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/500'
         '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+          $ref: '#/components/responses/503'
 
 components:
+  responses:
+    "400":
+      $ref: "components.yaml#/components/responses/400"
+    "401":
+      $ref: "components.yaml#/components/responses/401"
+    "403":
+      $ref: "components.yaml#/components/responses/403"
+    "404":
+      $ref: "components.yaml#/components/responses/404"
+    "500":
+      $ref: "components.yaml#/components/responses/500"
+    "503":
+      $ref: "components.yaml#/components/responses/503"
+
   schemas:
     Errore:
-      required:
-        - status
-        - type
-      type: object
-      properties:
-        status:
-          type: string
-          description: Codice di errore
-          example: <HTTP_CODE>
-          enum:
-            - '400'
-            - '401'
-            - '403'
-            - '404'
-            - '500'
-            - '503'
+      $ref: 'components.yaml#/components/schemas/Errore'
+    CodiceFiscale: 
+      $ref: 'components.yaml#/components/schemas/CodiceFiscale'
+    Email:
+      $ref: 'components.yaml#/components/schemas/Email'
+    DigitalAddress:  
+      $ref: '#/components/schemas/Email'
 
-    Codice_Fiscale: 
-      type: string
-      pattern: /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
-
-    Citizen_Status:
+    CitizenStatus:
       type: string
       enum:
         - citizenNotPresent
@@ -222,23 +179,17 @@ components:
         - waitingOfficeCancellation
         - digitalDomicilePresent
     
-    Email:
-      type: string
-      pattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
-
-    Digital_Address:  
-      $ref: '#/components/schemas/Email'
-
-    Request_Code:
+    RequestCode:
       type: string
       pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
   
     ACK:
       type: string
+      description: TODO Cosa significa?
       enum:
         - chargeMade
 
-    Citizen_Change_Status_Reason:
+    CitizenChangeStatusReason:
       type: string
       enum:
         - citizenRegistration
@@ -263,18 +214,21 @@ components:
         - after30dd
         - specialCaseCancellation
 
-    List_Changed_Digital_Address:
+    List_Changed_DigitalAddress:
       type: array
+      maxItems: 1000
+      minItems: 0
       items:
         type: object
+        additionalProperties: false
         required:
           - codice_fiscale
           - action
         properties:
           codice_fiscale:
-            $ref: '#/components/schemas/Codice_Fiscale'
+            $ref: '#/components/schemas/CodiceFiscale'
           digital_address:
-            $ref: '#/components/schemas/Digital_Address'
+            $ref: '#/components/schemas/DigitalAddress'
           action: 
             type: string
             enum:

@@ -13,139 +13,54 @@ info:
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
-  
+tags: []
 paths:
-  /{codice_fiscale}/status_check:
+  /citizen/{codice_fiscale}/status:
     get:
-      description: verifica lo stato di un CITTADINO
-
+      description: |-
+        Recupera lo stato di un CITTADINO a partire dal suo codice fiscale.
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true          
-          description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
-          schema: 
-            $ref: '#/components/schemas/Codice_Fiscale'
-  
+        - $ref: '#/components/parameters/codice_fiscale_path'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: Lo stato INAD del CITTADINO.
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/Citizen_Status'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+                $ref: '#/components/schemas/CitizenStatus'
 
-  /{codice_fiscale}/request_action:   
-    put:
-      description: richiesta di avvio azione di elezione, modifica o cancellazione volontaria del dominicio digitale di un CITTADINO
-
+  /citizen/{codice_fiscale}/change:   
+    post:
+      description: |-
+        richiesta di avvio azione di elezione, modifica o cancellazione volontaria 
+        del dominicio digitale di un CITTADINO.
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è chiesta l'azione
-          schema:  
-            $ref: '#/components/schemas/Codice_Fiscale'
-
+        - $ref: '#/components/parameters/codice_fiscale_path'
       requestBody:      
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Request_Action'
-
+              $ref: '#/components/schemas/RequestAction'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/Respose_Action'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '404':
-          description: NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+                $ref: '#/components/schemas/ResponseAction'
 
-  /{codice_fiscale}/changed_email:
-    put:
-      description: richiesta di cambiamento email di contatto di un CITTADINO
-      
+  /citizen/{codice_fiscale}/email:
+    post:
+      description: Modifica email di contatto di un CITTADINO
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
-          schema:  
-            $ref: '#/components/schemas/Codice_Fiscale'
+        - $ref: '#/components/parameters/codice_fiscale_path'
         - name: email
           in: query
           required: true
-          description: nuova e,ail di contatto del CITTADINO
+          description: nuova email di contatto del CITTADINO
           schema:  
             $ref: '#/components/schemas/Email'
-
       responses:
         '200':
             description: riscontro sullo stato del CITTADINO          
@@ -153,148 +68,48 @@ paths:
               application/json:
                 schema: 
                   $ref: '#/components/schemas/ACK'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '404':
-          description: NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
 
-  /recovers_changed_digital_addresses:
+
+  /modified-addresses:
     get:
-      description: recupera variazioni domicili digitali digitali ad uno specifico giorno
-
+      description: |-
+        recupera variazioni domicili digitali digitali ad uno specifico giorno
+        DOMANDA: ritorna tutte le modifiche a partire da una certa data?
       parameters:
-        - name: day
+        - name: date
           in: query
           required: true
           description: data di riferimento delle variazioni dei domicili digitali richieste
           schema:
             type: string
-            format: data
-
+            format: date
+            example: '2020-01-01'
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO          
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/List_Changed_Digital_Address'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+                $ref: '#/components/schemas/ChangedDigitalAddresses'
 
-  /sync_digital_addresses:
-    get:      
+  /digital-addresses:
+    get:
       description: recupera domicili digitali dei CITTADINI registrati in INAD
-
+      # parameters: limit?  offset?
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO          
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/List_Digital_Address'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
+                $ref: '#/components/schemas/DigitalAddresses'
+
   
   /{codice_fiscale}/death_notification:
     put:
-      description: notifica di decesso del CITTADINO
-
+      description: notifica di decesso del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
-          schema:  
-            $ref: '#/components/schemas/Codice_Fiscale'        
-
+        - $ref: '#/components/parameters/codice_fiscale_path'
       responses:
         '200':
             description: riscontro sullo stato del CITTADINO          
@@ -302,68 +117,45 @@ paths:
               application/json:
                 schema: 
                   $ref: '#/components/schemas/ACK'
-        '400':
-          description: BAD_REQUEST
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '401':
-          description: UNAUTHORIZED
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '403':
-          description: FORBIDDEN
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '404':
-          description: NOT_FOUND
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'        
-        '500':
-          description: INTERNAL_SERVER_ERROR
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
-        '503':
-          description: SERVICE_UNAVAILABLE
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errore'
 
 components:
+  parameters:
+    codice_fiscale_path:
+      name: codice_fiscale
+      in: path
+      required: true
+      description: codice fiscale del CITTADINO
+      schema:  
+        $ref: '#/components/schemas/CodiceFiscale'
+  responses:
+    "400":
+      $ref: "components.yaml#/components/responses/400"
+    "401":
+      $ref: "components.yaml#/components/responses/401"
+    "403":
+      $ref: "components.yaml#/components/responses/403"
+    "404":
+      $ref: "components.yaml#/components/responses/404"
+    "500":
+      $ref: "components.yaml#/components/responses/500"
+    "503":
+      $ref: "components.yaml#/components/responses/503"
   schemas:
+    MaxListItems:
+      type: integer
+      format: int32
+      maximum: 1000
+      minimum: 0
+
     Errore:
-      required:
-        - status
-        - type
-      type: object
-      properties:
-        status:
-          type: string
-          description: Codice di errore
-          example: <HTTP_CODE>
-          enum:
-            - '400'
-            - '401'
-            - '403'
-            - '404'
-            - '500'
-            - '503'
-
-    Codice_Fiscale: 
-      type: string
-      pattern: /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
-
-    Citizen_Status:
+      $ref: 'components.yaml#/components/schemas/Errore'
+    CodiceFiscale: 
+      $ref: 'components.yaml#/components/schemas/CodiceFiscale'
+    Email:
+      $ref: 'components.yaml#/components/schemas/Email'
+    DigitalAddress:  
+      $ref: '#/components/schemas/Email'
+    CitizenStatus:
       type: string
       enum:
         - citizenNotPresent
@@ -375,6 +167,12 @@ components:
         - waitingOfficeCancellation
         - digitalDomicilePresent
 
+    Actions:
+      type: string
+      enum:
+        - insert
+        - update
+        - delete
     Operation:
       type: string
       enum:
@@ -382,79 +180,85 @@ components:
         - insert
         - update
         - delete
-
-    Email:
+    GivenName:    
       type: string
-      pattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
-
-    Digital_Address:  
-      $ref: '#/components/schemas/Email'
-
-    Name:    
+      maxLength: 255
+    FamilyName:
       type: string
-
-    Surname:
-      type: string
-
-    Request_Action:
+      maxLength: 255
+    RequestAction:
       type: object
       properties:
         operation:
           $ref: '#/components/schemas/Operation'
-        name:
-          $ref: '#/components/schemas/Name'
-        surname: 
-          $ref: '#/components/schemas/Surname'
+        given_name:
+          $ref: '#/components/schemas/GivenName'
+        family_name: 
+          $ref: '#/components/schemas/FamilyName'
         email:
           $ref: '#/components/schemas/Email'
         digital_address:
-          $ref: '#/components/schemas/Digital_Address'
+          $ref: '#/components/schemas/DigitalAddress'
 
-    Request_Code:
+    RequestCode:
       type: string
       pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
   
-    Respose_Action:
+    ResponseAction:
       type: object
       properties:        
         citizen_status:
-          $ref: '#/components/schemas/Citizen_Status'
+          $ref: '#/components/schemas/CitizenStatus'
         request_code:
-          $ref: '#/components/schemas/Request_Code'
+          $ref: '#/components/schemas/RequestCode'
 
     ACK:
       type: string
       enum:
         - chargeMade
 
-    List_Changed_Digital_Address:
-      type: array
-      items:
-        type: object
-        required:
-          - codice_fiscale
-          - action
-        properties:
-          codice_fiscale:
-            $ref: '#/components/schemas/Codice_Fiscale'
-          digital_address:
-            $ref: '#/components/schemas/Digital_Address'
-          action: 
-            type: string
-            enum:
-              - insert
-              - update
-              - delete
+    ChangedDigitalAddresses:
+      type: object
+      additionalProperties: false
+      required:
+        - count
+        - items
+      properties:
+        count:
+          $ref: '#/components/schemas/MaxListItems'
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - codice_fiscale
+              - action
+            properties:
+              codice_fiscale:
+                $ref: '#/components/schemas/CodiceFiscale'
+              digital_address:
+                $ref: '#/components/schemas/DigitalAddress'
+              action:
+                $ref: '#/components/schemas/Actions'
 
-    List_Digital_Address:
-      type: array
-      items:
-        type: object
-        required:
-          - codice_fiscale         
-        properties:
-          codice_fiscale:
-            $ref: '#/components/schemas/Codice_Fiscale'
-          digital_address:
-            $ref: '#/components/schemas/Digital_Address'
+    DigitalAddresses:
+      type: object
+      additionalProperties: false
+      required:
+        - count
+        - items
+      properties:
+        count:
+          $ref: '#/components/schemas/MaxListItems'
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - codice_fiscale         
+            properties:
+              codice_fiscale:
+                $ref: '#/components/schemas/CodiceFiscale'
+              digital_address:
+                $ref: '#/components/schemas/DigitalAddress'
           

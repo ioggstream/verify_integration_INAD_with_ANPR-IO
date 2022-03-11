@@ -1,0 +1,7 @@
+
+extends:
+- https://italia.github.io/api-oas-checker/spectral-full.yml
+rules:
+  oas3-unused-components-schema: false
+  oas3-api-servers: false
+
