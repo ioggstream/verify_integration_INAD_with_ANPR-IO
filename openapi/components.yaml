@@ -14,6 +14,16 @@ servers: []
 paths: {}
 tags: []
 components:
+  headers:
+    Agid-JWS-Signature:
+      description: |-
+        L'header Agid-JWS-Signature è un JWS (JSON Web Signature) che contiene una firma digitale
+        associata al messaggio scambiato.
+      schema:
+        type: string
+        format: JWS
+        maxLength: 4096
+        example: eyJzd.fafa.fafafa
   responses:
     '400':
       description: BAD_REQUEST
@@ -81,16 +91,20 @@ components:
       type: string
       pattern: /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
     CitizenStatus:
+      description: |-
+        In INAD un cittadino può trovarsi in uno dei seguenti stati.
       type: string
       enum:
-        - citizenNotPresent
-        - digitalDomicileNotPresent
-        - inCharge
-        - verify
-        - confirmationRequestSent
-        - awaitingPublication
-        - waitingOfficeCancellation
-        - digitalDomicilePresent
+        - citizenNotPresent             #  non registrato
+        - digitalDomicileNotPresent     # registrato ma il domicilio digitale non è stato eletto
+        - inCharge                      # registrato e risulta l'avvio di una richiesta
+        - verify                        # registrato con una richiesta in verifica
+        - confirmationRequestSent       # registrato ed è stata mandata conferma della richiesta alla PEC o email di contatto
+        - awaitingPublication           # registrato con una richiesta in attesa di pubblicazione
+        - waitingOfficeCancellation     # FIXME
+        - digitalDomicilePresent        # registrato e il domicilio digitale è stato eletto
+
+
 
     Errore:
       required:
