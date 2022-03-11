@@ -1,0 +1,413 @@
+openapi: 3.0.1
+info:
+  title: INAD - Integrazione AppIO ed ANPR
+  x-summary: Recupera e gestisce i domicili digitali dei cittadini.
+  description: |-
+    API pubblicate da INAD per integrarsi con AppIO ed ANPR.
+
+    Queste API permettono:
+    - ai CITTADINI utenti di ANPR ed AppIO di gestire il proprio domicilio digitale;
+    - ad IO ed ANPR di accedere alle informazioni sui domicili digitali;
+    - ad ANPR di comunicare le variazioni di stato dei CITTADINI in caso di morte.
+
+  termsOfService: https://www.agid.gov.it/
+  contact:
+    name: AgID - Agenzia per l'Italia Digitale
+    url: https://www.agid.gov.it/
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  version: 1.0.0
+  x-api-id: 000-000-00
+servers:
+  - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
+    description: Generated server url
+tags:
+  - name: citizen
+    description: |-
+      Operazioni associate al singolo cittadino.
+  - name: bulk
+    description: |-
+      Operazioni associate a più cittadini / bulk.
+  - name: ANPR
+    description: |-
+      Operazioni associate all'ANPR
+  - name: app-io
+    description: |-
+      Operazioni associate all'app-io
+x-components:
+  # Componenti riusabili tramite YAML
+  common-responses: &common-responses
+    '400':
+      $ref: '#/components/responses/400'
+    '401':
+      $ref: '#/components/responses/401'
+    '403':
+      $ref: '#/components/responses/403'
+    '404':
+      $ref: '#/components/responses/404'
+    '500':
+      $ref: '#/components/responses/500'
+    '503':
+      $ref: '#/components/responses/503'
+security:
+  - bearerAuth: []
+
+paths:
+  /status:
+    get:
+      description: |-
+        Restituisce lo stato dell'API.
+      operationId: get_status
+      tags: []
+      responses:
+        <<: *common-responses
+        '200':
+          description: OK
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Errore'
+  /citizen/{codice_fiscale}/status:  # identico a inad_api_for_anpr.yaml
+    get:
+      operationId: get_citizen_status
+      tags:
+      - citizen
+      - ANPR
+      - app-io
+      description: |-
+        Recupera lo stato di un CITTADINO a partire dal suo codice fiscale.
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      responses:
+        <<: *common-responses
+        '200':
+          description: Lo stato INAD del CITTADINO.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CitizenStatus'
+  /citizen/{codice_fiscale}/change:  # Identico a inad_api_for_anpr.yaml
+    post:
+      operationId: post_citizen_change
+      tags:
+        - citizen
+        - ANPR
+        - app-io
+      description: |-
+        richiesta di elezione, modifica o cancellazione volontaria
+        del dominicio digitale di un CITTADINO.
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationRequest'
+      responses:
+        <<: *common-responses
+        '200':
+          description: |-
+            Riscontro sullo stato del CITTADINO
+
+            Q1. La response è una ricevuta di accettazione o di modifica?
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationStatus'
+
+
+  /citizen/{codice_fiscale}/email:
+    post:
+      operationId: post_citizen_email
+      tags:
+        - citizen
+      description: |-
+        Modifica email di contatto di un CITTADINO.
+
+        Nota: se la modifica dell'email e la notifica di morte
+        sono entrambe accessibili da ANPR può aver senso
+        avere una sola operation dove passare la variazione
+        nel requestBody o tramite il metodo PATCH.
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  $ref: '#/components/schemas/Email'
+      responses:
+        <<: *common-responses
+        '200':
+            description: Lo stato dell'operazione.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ACK'
+
+
+  /citizen/{codice_fiscale}:
+    get:
+      operationId: get_address
+      tags:
+        - citizen
+        - app-io
+      description: Ritorna il domicilio digitale di un CITTADINO
+
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+
+      responses:
+        <<: *common-responses
+
+        '200':
+            description: riscontro sullo stato del CITTADINO
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DigitalAddress'
+
+
+  /citizen/{codice_fiscale}/death:
+    post:
+      tags:
+        - citizen
+        - ANPR
+      operationId: post_citizen_death
+      description: |-
+        ANPR notifica ad INAD il decesso del CITTADINO.
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      responses:
+        <<: *common-responses
+        '200':
+            description: |-
+              Ritorna lo stato dell'operazione.
+              Se fosse lo stato del CITTADINO dovrebbe ritornare
+              uno dei valori di CitizenStatus
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ACK'
+
+
+  /app-io/unsubscribe/{codice_fiscale}:
+    post:
+      operationId: post_unsubscribe
+      tags:
+        - citizen
+        - app-io
+      description: |-
+        Il CITTADINO abbandona l'AppIO.
+        Qui niente payload?
+
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      responses:
+        <<: *common-responses
+        '200':
+            description: riscontro sullo stato del CITTADINO
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ACK'
+
+
+  /modified-addresses:
+    get:
+      description: recupera variazioni domicili digitali ad uno specifico giorno
+      operationId: get_modified_addresses
+      tags:
+        - citizen
+        - app-io
+        - ANPR
+        - bulk
+      parameters:
+        - name: day
+          in: query
+          required: true
+          description: data di riferimento delle variazioni dei domicili digitali richieste
+          schema:
+            type: string
+            format: data
+
+      responses:
+        <<: *common-responses
+        '200':
+          description: riscontro sullo stato del CITTADINO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangedCitizenAddresses'
+  /digital-addresses:
+    get:
+      tags:
+      - bulk
+      - ANPR
+      operationId: get_digital_addresses
+      description: |-
+        Recupera domicili digitali dei CITTADINI registrati in inad_api_for_anpr.yaml
+
+        Q1. Quanti domicili ritorna, tutti? In tal caso probabilmente andrebbe inviato compresso.
+        Q2. Serve paginare?
+      responses:
+        <<: *common-responses
+        '200':
+          description: L'elenco dei cittadini con i relativi domicili digitali
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CitizenAddresses'
+
+components:
+  parameters:
+    codice_fiscale_path:
+      name: codice_fiscale
+      in: path
+      required: true
+      description: codice fiscale del CITTADINO
+      schema:
+        $ref: '#/components/schemas/CodiceFiscale'
+  responses:
+    "400":
+      $ref: "components.yaml#/components/responses/400"
+    "401":
+      $ref: "components.yaml#/components/responses/401"
+    "403":
+      $ref: "components.yaml#/components/responses/403"
+    "404":
+      $ref: "components.yaml#/components/responses/404"
+    "500":
+      $ref: "components.yaml#/components/responses/500"
+    "503":
+      $ref: "components.yaml#/components/responses/503"
+  schemas:
+    MaxListItems:
+      type: integer
+      format: int32
+      maximum: 1000
+      minimum: 0
+
+    Errore:
+      $ref: 'components.yaml#/components/schemas/Errore'
+    CodiceFiscale:
+      $ref: 'components.yaml#/components/schemas/CodiceFiscale'
+    Email:
+      $ref: 'components.yaml#/components/schemas/Email'
+    DigitalAddress:
+      $ref: '#/components/schemas/Email'
+
+    CitizenStatus:
+      $ref: 'components.yaml#/components/schemas/CitizenStatus'
+    Operation:
+      type: string
+      enum:
+        - registration&insert
+        - insert
+        - update
+        - delete
+    GivenName:
+      type: string
+      maxLength: 255
+    FamilyName:
+      type: string
+      maxLength: 255
+    RequestCode:
+      $ref: 'components.yaml#/components/schemas/RequestCode'
+    ACK:
+      $ref: 'components.yaml#/components/schemas/ACK'
+    VariationRequest:
+      type: object
+      properties:
+        operation:
+          $ref: '#/components/schemas/Operation'
+        given_name:
+          $ref: '#/components/schemas/GivenName'
+        family_name:
+          $ref: '#/components/schemas/FamilyName'
+        email:
+          $ref: '#/components/schemas/Email'
+        digital_address:
+          $ref: '#/components/schemas/DigitalAddress'
+    VariationStatus:
+      type: object
+      properties:
+        citizen_status:
+          $ref: '#/components/schemas/CitizenStatus'
+        request_code:
+          $ref: '#/components/schemas/RequestCode'
+
+    CitizenAddress:
+      description: |-
+        Le informazioni relative ad un cittadino con
+        un domicilio digitale.
+
+        Q: i campi sono entrambi obbligatori?
+        Q: che succede se un codice fiscale non ha un domicilio digitale?
+        Q: questo schema modella una persona fisica, giusto?
+      type: object
+      required:
+      - digital_address
+      - codice_fiscale
+      additionalProperties: false
+      properties:
+        codice_fiscale:
+          # NOTA: qui e altrove, se gli schemi sono in inglese, usare tax_code.
+          #       altrimenti usare l'italiano per gli altri campi.
+          $ref: '#/components/schemas/CodiceFiscale'
+        digital_address:
+          $ref: '#/components/schemas/DigitalAddress'
+        operation:  # Questi sono i valori di Operation, giusto?
+          $ref: '#/components/schemas/Operation'
+
+    ChangedCitizenAddresses:
+      type: object
+      additionalProperties: false
+      required:
+        - count
+        - items
+      properties:
+        count:
+          $ref: '#/components/schemas/MaxListItems'
+        items:
+          type: array
+          maxItems: 1000
+          minItems: 0
+          items:
+            allOf:
+              - $ref: '#/components/schemas/CitizenAddress'
+    CitizenAddresses:
+      type: object
+      additionalProperties: false
+      required:
+        - count
+        - items
+      properties:
+        count:
+          $ref: '#/components/schemas/MaxListItems'
+        items:
+          type: array
+          minItems: 0
+          maxItems: 1000
+          items:
+            allOf:
+            - $ref: '#/components/schemas/CitizenAddress'
+            - not:
+                type: object
+                properties:
+                  operation:
+                    $ref: '#/components/schemas/Operation'
+
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: |-
+        Implementation is compliant with RFC8725.
