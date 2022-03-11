@@ -2,7 +2,8 @@ openapi: 3.0.1
 info:
   title: INAD - Integrazione ANPR
   description: |-
-    API rese disponibili da INAD al Catalogo delle API previsto nel modello di interoperabilità delle pubbliche amministrazioni accessibile da ANPR.
+    API rese disponibili da INAD al Catalogo delle API previsto nel modello di interoperabilità
+    delle pubbliche amministrazioni accessibile da ANPR.
   contact:
     name: AgID - Agenzia per l'Italia Digitale
     url: https://www.agid.gov.it/
@@ -13,7 +14,9 @@ info:
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
-tags: []
+tags:
+  - name: citizen
+  - name: bulk
 paths:
   /citizen/{codice_fiscale}/status:
     get:
@@ -26,52 +29,106 @@ paths:
           description: Lo stato INAD del CITTADINO.
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/CitizenStatus'
 
-  /citizen/{codice_fiscale}/change:   
+  /citizen/{codice_fiscale}/change:
     post:
       description: |-
-        richiesta di avvio azione di elezione, modifica o cancellazione volontaria 
+        richiesta di avvio azione di elezione, modifica o cancellazione volontaria
         del dominicio digitale di un CITTADINO.
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
-      requestBody:      
+      requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestAction'
+              $ref: '#/components/schemas/VariationRequest'
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
-                $ref: '#/components/schemas/ResponseAction'
+              schema:
+                $ref: '#/components/schemas/VariationStatus'
 
   /citizen/{codice_fiscale}/email:
     post:
-      description: Modifica email di contatto di un CITTADINO
+      description: |-
+        Modifica email di contatto di un CITTADINO.
+
+        Nota: se la modifica dell'email e la notifica di morte
+        sono entrambe accessibili da ANPR può aver senso
+        avere una sola operation dove passare la variazione
+        nel requestBody o tramite il metodo PATCH.
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
-        - name: email
-          in: query
-          required: true
-          description: nuova email di contatto del CITTADINO
-          schema:  
-            $ref: '#/components/schemas/Email'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                email:
+                  $ref: '#/components/schemas/Email'
       responses:
         '200':
-            description: riscontro sullo stato del CITTADINO          
+            description: Lo stato dell'operazione.
             content:
               application/json:
-                schema: 
+                schema:
                   $ref: '#/components/schemas/ACK'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
+
+  /citizen/{codice_fiscale}/death:
+    post:
+      operationId: post_citizen_death
+      description: |-
+        ANPR notifica ad INAD il decesso del CITTADINO.
+      parameters:
+        - $ref: '#/components/parameters/codice_fiscale_path'
+      responses:
+        '200':
+            description: |-
+              Ritorna lo stato dell'operazione.
+              Se fosse lo stato del CITTADINO dovrebbe ritornare
+              uno dei valori di CitizenStatus
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ACK'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
 
 
   /modified-addresses:
     get:
+      tags:
+      - bulk
+      operationId: get_modified_addresses
       description: |-
         recupera variazioni domicili digitali digitali ad uno specifico giorno
         DOMANDA: ritorna tutte le modifiche a partire da una certa data?
@@ -86,37 +143,52 @@ paths:
             example: '2020-01-01'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/ChangedDigitalAddresses'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
 
   /digital-addresses:
     get:
+      tags:
+      - bulk
+      operationId: get_digital_addresses
       description: recupera domicili digitali dei CITTADINI registrati in INAD
       # parameters: limit?  offset?
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/DigitalAddresses'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+        '503':
+          $ref: '#/components/responses/503'
 
-  
-  /{codice_fiscale}/death_notification:
-    put:
-      description: notifica di decesso del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
-      parameters:
-        - $ref: '#/components/parameters/codice_fiscale_path'
-      responses:
-        '200':
-            description: riscontro sullo stato del CITTADINO          
-            content:
-              application/json:
-                schema: 
-                  $ref: '#/components/schemas/ACK'
+
 
 components:
   parameters:
@@ -125,7 +197,7 @@ components:
       in: path
       required: true
       description: codice fiscale del CITTADINO
-      schema:  
+      schema:
         $ref: '#/components/schemas/CodiceFiscale'
   responses:
     "400":
@@ -149,30 +221,13 @@ components:
 
     Errore:
       $ref: 'components.yaml#/components/schemas/Errore'
-    CodiceFiscale: 
+    CodiceFiscale:
       $ref: 'components.yaml#/components/schemas/CodiceFiscale'
     Email:
       $ref: 'components.yaml#/components/schemas/Email'
-    DigitalAddress:  
+    DigitalAddress:
       $ref: '#/components/schemas/Email'
-    CitizenStatus:
-      type: string
-      enum:
-        - citizenNotPresent
-        - digitalDomicileNotPresent
-        - inCharge
-        - verify
-        - confirmationRequestSent
-        - awaitingPublication
-        - waitingOfficeCancellation
-        - digitalDomicilePresent
 
-    Actions:
-      type: string
-      enum:
-        - insert
-        - update
-        - delete
     Operation:
       type: string
       enum:
@@ -180,42 +235,39 @@ components:
         - insert
         - update
         - delete
-    GivenName:    
+    GivenName:
       type: string
       maxLength: 255
     FamilyName:
       type: string
       maxLength: 255
-    RequestAction:
+    RequestCode:
+      $ref: 'components.yaml#/components/schemas/RequestCode'
+    ACK:
+      $ref: 'components.yaml#/components/schemas/ACK'
+    CitizenStatus:
+      $ref: 'components.yaml#/components/schemas/CitizenStatus'
+    VariationRequest:
       type: object
       properties:
         operation:
           $ref: '#/components/schemas/Operation'
         given_name:
           $ref: '#/components/schemas/GivenName'
-        family_name: 
+        family_name:
           $ref: '#/components/schemas/FamilyName'
         email:
           $ref: '#/components/schemas/Email'
         digital_address:
           $ref: '#/components/schemas/DigitalAddress'
 
-    RequestCode:
-      type: string
-      pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
-  
-    ResponseAction:
+    VariationStatus:
       type: object
-      properties:        
+      properties:
         citizen_status:
           $ref: '#/components/schemas/CitizenStatus'
         request_code:
           $ref: '#/components/schemas/RequestCode'
-
-    ACK:
-      type: string
-      enum:
-        - chargeMade
 
     ChangedDigitalAddresses:
       type: object
@@ -235,11 +287,13 @@ components:
               - action
             properties:
               codice_fiscale:
+                # NOTA: qui e altrove, se gli schemi sono in inglese, usare tax_code.
+                #       altrimenti usare l'italiano per gli altri campi.
                 $ref: '#/components/schemas/CodiceFiscale'
               digital_address:
                 $ref: '#/components/schemas/DigitalAddress'
-              action:
-                $ref: '#/components/schemas/Actions'
+              operation:  # Questi sono i valori di Operation, giusto?
+                $ref: '#/components/schemas/Operation'
 
     DigitalAddresses:
       type: object
@@ -255,10 +309,9 @@ components:
           items:
             type: object
             required:
-              - codice_fiscale         
+              - codice_fiscale
             properties:
               codice_fiscale:
                 $ref: '#/components/schemas/CodiceFiscale'
               digital_address:
                 $ref: '#/components/schemas/DigitalAddress'
-          

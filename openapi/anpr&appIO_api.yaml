@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: ANPR/AppIO - Integrazione AppIO
   description: |-
-    API rese disponibili da ANPR/AppIO al Catalogo delle API previsto nel modello di interoperabilità 
+    API rese disponibili da ANPR/AppIO al Catalogo delle API previsto nel modello di interoperabilità
     delle pubbliche amministrazioni accessibile da INAD.
   contact:
     name: AgID - Agenzia per l'Italia Digitale
@@ -22,7 +22,7 @@ tags:
     description: Informazioni sui cittadini
     externalDocs:
       description: API reference
-      url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO  
+      url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
 paths:
   /{codice_fiscale}/receive_status_change:
     get:
@@ -33,9 +33,9 @@ paths:
       parameters:
         - name: codice_fiscale
           in: path
-          required: true          
+          required: true
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
-          schema: 
+          schema:
             $ref: '#/components/schemas/CodiceFiscale'
         - name: citizen_status
           in: query
@@ -52,15 +52,15 @@ paths:
         - name: RequestCode
           in: query
           description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
-          schema: 
+          schema:
             $ref: '#/components/schemas/RequestCode'
-        
+
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/ACK'
         '400':
           $ref: '#/components/responses/400'
@@ -84,9 +84,9 @@ paths:
       parameters:
         - name: codice_fiscale
           in: path
-          required: true          
+          required: true
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
-          schema: 
+          schema:
             $ref: '#/components/schemas/CodiceFiscale'
         - name: email
           in: query
@@ -96,10 +96,10 @@ paths:
             $ref: '#/components/schemas/Email'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/ACK'
         '400':
           $ref: '#/components/responses/400'
@@ -118,16 +118,16 @@ paths:
     post:
       description: ricevi variazioni di domicili digitali delle ultime 24h
       requestBody:
-        content:          
+        content:
           application/json:
             schema:
               $ref: '#/components/schemas/List_Changed_DigitalAddress'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: riscontro sullo stato del CITTADINO
           content:
             application/json:
-              schema: 
+              schema:
                 $ref: '#/components/schemas/ACK'
         '400':
           $ref: '#/components/responses/400'
@@ -160,11 +160,11 @@ components:
   schemas:
     Errore:
       $ref: 'components.yaml#/components/schemas/Errore'
-    CodiceFiscale: 
+    CodiceFiscale:
       $ref: 'components.yaml#/components/schemas/CodiceFiscale'
     Email:
       $ref: 'components.yaml#/components/schemas/Email'
-    DigitalAddress:  
+    DigitalAddress:
       $ref: '#/components/schemas/Email'
 
     CitizenStatus:
@@ -178,11 +178,11 @@ components:
         - awaitingPublication
         - waitingOfficeCancellation
         - digitalDomicilePresent
-    
+
     RequestCode:
       type: string
       pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
-  
+
     ACK:
       type: string
       description: TODO Cosa significa?
@@ -229,7 +229,7 @@ components:
             $ref: '#/components/schemas/CodiceFiscale'
           digital_address:
             $ref: '#/components/schemas/DigitalAddress'
-          action: 
+          action:
             type: string
             enum:
               - insert

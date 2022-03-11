@@ -4,4 +4,3 @@ extends:
 rules:
   oas3-unused-components-schema: false
   oas3-api-servers: false
-
