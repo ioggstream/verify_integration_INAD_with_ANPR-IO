@@ -14,18 +14,22 @@ info:
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
-
+tags:
+  - name: citizen
+  - name: bulk
 paths:
-  /citizen/{codice_fiscale}/status:
-    $ref: 'inad_api_for_anpr.yaml#/paths/~1citizen~1{codice_fiscale}~1status'
-  /{codice_fiscale}/status_check:
+  /citizen/{codice_fiscale}/status:  # identico a inad_api_for_anpr.yaml
     get:
-      description: verifica lo stato di un CITTADINOß
+      operationId: get_citizen_status
+      tags:
+      - citizen
+      description: |-
+        Recupera lo stato di un CITTADINO a partire dal suo codice fiscale.
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO
+          description: Lo stato INAD del CITTADINO.
           content:
             application/json:
               schema:
@@ -46,7 +50,9 @@ paths:
 
   /{codice_fiscale}/request_action:
     put:
-      description: richiesta di avvio azione di elezione, modifica o cancellazione volontaria del dominicio digitale di un CITTADINO
+      description: |-
+        richiesta di avvio azione di elezione, modifica o cancellazione volontaria
+        del dominicio digitale di un CITTADINO
 
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
