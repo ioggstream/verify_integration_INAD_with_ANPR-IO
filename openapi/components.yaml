@@ -25,6 +25,12 @@ components:
         maxLength: 4096
         example: eyJzd.fafa.fafafa
   responses:
+    NotificaRicevuta:
+      description: Notifica ricevuta correttamente.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ACK'
     '400':
       description: BAD_REQUEST
       content:
@@ -82,6 +88,31 @@ components:
       enum:
         - chargeMade
 
+    CitizenChangeStatusReason:
+      type: string
+      enum:
+        - citizenRegistration
+        - electionRequest
+        - changeRequest
+        - voluntaryCancellationRequest
+        - startVerification
+        - OKVerificationForElection
+        - OKVerificationForChange
+        - KOVerificationForElection
+        - KOVerificationForChange
+        - electionConfirmed
+        - changeConfirmed
+        - after90dd
+        - electionAbolition
+        - changeAbolition
+        - electionPubblished
+        - changePubblished
+        - voluntaryCancellationPubblished
+        - officeCancellationPubblished
+        - officeCancellation
+        - after30dd
+        - specialCaseCancellation
+
     Email:
       type: string
       pattern: ^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
@@ -95,14 +126,14 @@ components:
         In INAD un cittadino può trovarsi in uno dei seguenti stati.
       type: string
       enum:
-        - citizenNotPresent             #  non registrato
-        - digitalDomicileNotPresent     # registrato ma il domicilio digitale non è stato eletto
-        - inCharge                      # registrato e risulta l'avvio di una richiesta
-        - verify                        # registrato con una richiesta in verifica
-        - confirmationRequestSent       # registrato ed è stata mandata conferma della richiesta alla PEC o email di contatto
-        - awaitingPublication           # registrato con una richiesta in attesa di pubblicazione
-        - waitingOfficeCancellation     # FIXME
-        - digitalDomicilePresent        # registrato e il domicilio digitale è stato eletto
+        - citizenNotPresent             # 1. non registrato
+        - digitalDomicileNotPresent     # 2. registrato ma il domicilio digitale non è stato eletto
+        - inCharge                      # 3. registrato e risulta l'avvio di una richiesta
+        - verify                        # 4. registrato con una richiesta in verifica
+        - confirmationRequestSent       # 5. registrato ed è stata mandata conferma della richiesta alla PEC o email di contatto
+        - awaitingPublication           # 6. registrato con una richiesta in attesa di pubblicazione
+        - waitingOfficeCancellation     # 7. FIXME
+        - digitalDomicilePresent        # 8. registrato e il domicilio digitale è stato eletto
 
 
 
@@ -137,3 +168,19 @@ components:
           description: Descrizione di dettaglio dello specifico problema verificatosi
           example: <detail_error>
           maxLength: 1024
+
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: |-
+        Implementation is compliant with RFC8725.
+    Agid-JWS-Signature:
+      type: apiKey
+      in: header
+      name: Agid-JWS-Signature
+      description: |-
+        JWS Signature header.
+        The value of this header is a JWS signature.
+        Vedi NFR.03

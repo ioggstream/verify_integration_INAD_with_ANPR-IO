@@ -2,8 +2,9 @@ openapi: 3.0.1
 info:
   title: ANPR/AppIO - Integrazione AppIO
   description: |-
-    API rese disponibili da ANPR/AppIO al Catalogo delle API previsto nel modello di interoperabilità
-    delle pubbliche amministrazioni accessibile da INAD.
+    API rese disponibili da ANPR/AppIO per permettere ad INAD di notificare
+    le variazioni dei domicili digitali.
+
   contact:
     name: AgID - Agenzia per l'Italia Digitale
     url: https://www.agid.gov.it/
@@ -12,7 +13,7 @@ info:
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
   version: 1.0.0
   termsOfService: https://www.agid.gov.it/
-  x-summary: Recupero informazioni su Domicilio Digitale
+  x-summary: Notifica variazioni sui domicili digitali.
 
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
@@ -27,38 +28,38 @@ tags:
   - name: bulk
     description: |-
       Operazioni bulk
-  - name: cittadino
-    description: Informazioni sui cittadini
+  - name: INAD
+    description: API destinata ad INAD
     externalDocs:
       description: API reference
       url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
 paths:
-  /{codice_fiscale}/receive_status_change:
-    get:
-      description: Ricevi lo stato di un CITTADINO
-      tags:
-      - cittadino
-      operationId: gut_receive_status_change
-      parameters:
-        - $ref: '#/components/parameters/codice_fiscale_path'
+  /status: {}
+  /notifiche/variazione/domicilio:
+    post:
+      description: |-
+        Ricevi da INAD una variazione di stato di un CITTADINO.
 
-        - name: citizen_status
-          in: query
-          required: true
-          description: nuovo stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/CitizenStatus'
-        - name: change_status_reason
-          in: query
-          required: true
-          description: motivazione del cambiamento di stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/CitizenChangeStatusReason'
-        - name: RequestCode
-          in: query
-          description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/RequestCode'
+        [UC007](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc007---notifica-cambio-di-stato-del-cittadino)
+      tags:
+      - INAD
+      operationId: post_receive_status_change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                codice_fiscale:
+                  $ref: '#/components/schemas/CodiceFiscale'
+                citizen_status:
+                  $ref: '#/components/schemas/CitizenStatus'
+                reason:
+                  $ref: '#/components/schemas/CitizenChangeStatusReason'
+                request_code:
+                  $ref: '#/components/schemas/RequestCode'
 
       responses:
         '200':
@@ -80,24 +81,30 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /{codice_fiscale}/receive_changed_email:
+  /notifiche/variazione/domicilio/email:
     post:
-      description: ricevi cambiamento email di contatto di un CITTADINO
-      operationId: put_receive_changed_email
-      tags:
-        - cittadino
-      parameters:
-        - $ref: '#/components/parameters/codice_fiscale_path'
+      description: |-
+        Ricevi da INAD una variazione dell'email di contatto del CITTADINO.
 
-        - name: email
-          in: query
-          required: true
-          description: nuovo stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Email'
+        [UC008](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc008---inoltro-aggiornamento-email-di-contatto)
+      operationId: post_receive_changed_email
+      tags:
+        - INAD
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                codice_fiscale:
+                  $ref: '#/components/schemas/CodiceFiscale'
+                email:
+                  $ref: '#/components/schemas/Email'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO
+          description: Notifica ricevuta correttamente.
           content:
             application/json:
               schema:
@@ -115,17 +122,18 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /receive_changed_digita_addresses:
+  /notifiche/variazione/domicili:
     post:
-      description: ricevi variazioni di domicili digitali delle ultime 24h
+      description: |-
+        Ricevi da INAD variazioni di domicili digitali delle ultime 24h
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/List_Changed_DigitalAddress'
+              $ref: '#/components/schemas/ChangedDigitaAddresses'
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO
+          description: Notifica ricevuta correttamente.
           content:
             application/json:
               schema:
@@ -144,6 +152,11 @@ paths:
           $ref: '#/components/responses/503'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      $ref: 'components.yaml#/components/securitySchemes/bearerAuth'
+    Agid-JWS-Signature:
+      $ref: 'components.yaml#/components/securitySchemes/Agid-JWS-Signature'
   responses:
     "400":
       $ref: "components.yaml#/components/responses/400"
@@ -175,18 +188,8 @@ components:
       $ref: 'components.yaml#/components/schemas/Email'
     DigitalAddress:
       $ref: '#/components/schemas/Email'
-
     CitizenStatus:
-      type: string
-      enum:
-        - citizenNotPresent
-        - digitalDomicileNotPresent
-        - inCharge
-        - verify
-        - confirmationRequestSent
-        - awaitingPublication
-        - waitingOfficeCancellation
-        - digitalDomicilePresent
+      $ref: 'components.yaml#/components/schemas/CitizenStatus'
 
     CitizenChangeStatusReason:
       type: string
@@ -213,24 +216,12 @@ components:
         - after30dd
         - specialCaseCancellation
 
-    List_Changed_DigitalAddress:
-      type: array
-      maxItems: 1000
-      minItems: 0
-      items:
-        type: object
-        additionalProperties: false
-        required:
-          - codice_fiscale
-          - action
-        properties:
-          codice_fiscale:
-            $ref: '#/components/schemas/CodiceFiscale'
-          digital_address:
-            $ref: '#/components/schemas/DigitalAddress'
-          action:
-            type: string
-            enum:
-              - insert
-              - update
-              - delete
+    ChangedCitizenAddresses:
+      $ref: 'inad-unificato.yaml#/components/schemas/ChangedCitizenAddresses'
+# L'autenticazione richiede sia un Access Token sia
+# un Token di integrità delle richieste. Attualmente
+# non credo sia possibile descrivere formalmente
+# la struttura di Agid-JWS-Signature.
+security:
+  - bearerAuth: []
+    Agid-JWS-Signature: []
