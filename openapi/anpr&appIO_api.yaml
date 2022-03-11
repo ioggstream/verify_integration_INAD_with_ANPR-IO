@@ -18,6 +18,15 @@ servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
 tags:
+  - name: ANPR
+    description: |-
+      Operazioni associate all'ANPR
+  - name: app-io
+    description: |-
+      Operazioni associate all'app-io
+  - name: bulk
+    description: |-
+      Operazioni bulk
   - name: cittadino
     description: Informazioni sui cittadini
     externalDocs:
@@ -29,14 +38,10 @@ paths:
       description: Ricevi lo stato di un CITTADINO
       tags:
       - cittadino
-      operationId: put_receive_status_change
+      operationId: gut_receive_status_change
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
-          schema:
-            $ref: '#/components/schemas/CodiceFiscale'
+        - $ref: '#/components/parameters/codice_fiscale_path'
+
         - name: citizen_status
           in: query
           required: true
@@ -76,18 +81,14 @@ paths:
           $ref: '#/components/responses/503'
 
   /{codice_fiscale}/receive_changed_email:
-    put:
+    post:
       description: ricevi cambiamento email di contatto di un CITTADINO
       operationId: put_receive_changed_email
       tags:
         - cittadino
       parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
-          schema:
-            $ref: '#/components/schemas/CodiceFiscale'
+        - $ref: '#/components/parameters/codice_fiscale_path'
+
         - name: email
           in: query
           required: true
@@ -156,6 +157,14 @@ components:
       $ref: "components.yaml#/components/responses/500"
     "503":
       $ref: "components.yaml#/components/responses/503"
+  parameters:
+    codice_fiscale_path:
+      name: codice_fiscale
+      in: path
+      required: true
+      description: codice fiscale del CITTADINO
+      schema:
+        $ref: '#/components/schemas/CodiceFiscale'
 
   schemas:
     Errore:
@@ -178,16 +187,6 @@ components:
         - awaitingPublication
         - waitingOfficeCancellation
         - digitalDomicilePresent
-
-    RequestCode:
-      type: string
-      pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
-
-    ACK:
-      type: string
-      description: TODO Cosa significa?
-      enum:
-        - chargeMade
 
     CitizenChangeStatusReason:
       type: string

@@ -81,6 +81,9 @@ paths:
 
   /citizen/{codice_fiscale}/email:
     post:
+      operationId: post_citizen_email
+      tags:
+        - citizen
       description: |-
         Modifica email di contatto di un CITTADINO.
 
