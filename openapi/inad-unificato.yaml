@@ -3,12 +3,19 @@ info:
   title: INAD - Integrazione AppIO ed ANPR
   x-summary: Recupera e gestisce i domicili digitali dei cittadini.
   description: |-
-    API pubblicate da INAD per integrarsi con AppIO ed ANPR.
+    API necessarie all'integrazione tra INAD, IO ed ANPR.
 
     Queste API permettono:
     - ai CITTADINI utenti di ANPR ed AppIO di gestire il proprio domicilio digitale;
     - ad IO ed ANPR di accedere alle informazioni sui domicili digitali;
     - ad ANPR di comunicare le variazioni di stato dei CITTADINI in caso di morte.
+
+    Inoltre permettono ad INAD:
+    - di notificare ad IO ed ANPR le variazioni di stato dei cittadini.
+
+    I `tag` sono utilizzati per identificare i fruitori delle API,
+    quelle INAD per esempio sono utilizzate da INAD per notificare
+    ad ANPR ed IO le variazioni di stato dei cittadini.
 
   termsOfService: https://www.agid.gov.it/
   contact:
@@ -23,12 +30,6 @@ servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
 tags:
-  - name: citizen
-    description: |-
-      Operazioni richieste dal singolo cittadino.
-  - name: bulk
-    description: |-
-      Operazioni associate a più cittadini / bulk.
   - name: ANPR
     description: |-
       Operazioni destinate all'ANPR
@@ -38,6 +39,12 @@ tags:
   - name: INAD
     description: |-
       Operazioni destinate all'INADß
+  - name: citizen
+    description: |-
+      Operazioni richieste dal singolo cittadino.
+  - name: bulk
+    description: |-
+      Operazioni associate a più cittadini / bulk.
   - name: notifiche
     description: |-
       Operazioni per gestire notifiche in ingresso e in uscita.
@@ -75,9 +82,9 @@ paths:
         Restituisce lo stato dell'API.
       operationId: get_status
       tags:
-
-      - provider:io
-      - provider:anpr
+      - INAD
+      - ANPR
+      - app-io
       responses:
         <<: *common-responses
         '200':
@@ -112,7 +119,13 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/DigitalAddress'
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - domicilio_digitale
+                  properties:
+                    domicilio_digitale:
+                      $ref: '#/components/schemas/DigitalAddress'
     patch:
       operationId: patch_domicilio
       tags:
@@ -149,6 +162,10 @@ paths:
             content:
               application/json:
                 schema:
+                  # TODO: ACK è usato quasi ovunque per ritornare le response delle notifiche
+                  #       qui invece ritorna lo stato di una variazione. Sarebbe meglio
+                  #       ritornare l'oggetto completo in modo da permettere al chiamante
+                  #       di essere certo che la variazione è stata recepita correttamente.
                   $ref: '#/components/schemas/ACK'
 
   /domicilio/{codice_fiscale}/status:  # identico a inad_api_for_anpr.yaml
@@ -189,6 +206,11 @@ paths:
         [UC002](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc001---notifica-richiesta-elezione-domicilio-digitale-di-un-cittadino)
         [UC003](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc001---notifica-richiesta-elezione-domicilio-digitale-di-un-cittadino)
         [UC004](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc001---notifica-richiesta-elezione-domicilio-digitale-di-un-cittadino)
+
+
+        Q1. Se uno si perda la variazione, come la recupera?
+            C'è un metodo `GET` associato per recuperare l'ultima variazione?
+            Come recupero lo storico delle variazioni?
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
       requestBody:
@@ -212,17 +234,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/VariationStatus'
 
-  /app-io/unsubscribe/{codice_fiscale}:
+  /notifiche/unsubscribe-io/{codice_fiscale}:
     post:
-      operationId: post_unsubscribe
+      operationId: post_notifiche_unsubscribe_io
       tags:
         - citizen
         - app-io
       description: |-
-        Il CITTADINO abbandona l'AppIO.
+        INAD riceve la notifica di disiscrizione da parte dell'app-io.
+
+        Il CITTADINO si disiscrive dall'AppIO.
         [UC014](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc014---abbandono-appio)
 
-        Q1. In questo caso l'abbandono prevede l'eliminazione
+        Q1. In questo caso la disiscrizione prevede l'eliminazione
             del domicilio digitale?
             L'app IO è un domicilio digitale?
       parameters:
@@ -230,59 +254,47 @@ paths:
       responses:
         <<: *common-responses
         '200':
-            description: riscontro sullo stato del CITTADINO
-            headers:
-              <<: *common-headers
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ACK'
+            $ref: '#/components/responses/NotificaRicevuta'
 
   /notifiche/morte/{codice_fiscale}:
     post:
       tags:
         - ANPR
         - notifiche
-      operationId: post_citizen_death
+      operationId: post_notifiche_morte
       description: |-
         ANPR notifica ad INAD il decesso del cittadino.
         Questa operazione è accessibile solo da ANPR.
 
         [UC010](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc010---notifica-decesso)
+
         Nota: In questo caso, visto che è un tipo di notifica,
         ha anche senso usare un path separato. L'azione sulla
         risorsa /domicilio/{codice_fiscale} è indiretta.
+
+        Ritorna lo stato dell'operazione.
+        Nota: Se fosse lo stato del CITTADINO dovrebbe ritornare
+        uno dei valori di CitizenStatus. Ritorna invece un ack.
+
+        Potrebbe aver senso ritornare effettivamente il CitizenStatus
+        in questo caso, con tutto l'oggetto CitizenAddress finale.
+
       parameters:
         - $ref: '#/components/parameters/codice_fiscale_path'
       responses:
         <<: *common-responses
         '200':
-            description: |-
-              Ritorna lo stato dell'operazione.
-              Nota: Se fosse lo stato del CITTADINO dovrebbe ritornare
-              uno dei valori di CitizenStatus. Ritorna invece un ack.
+          $ref: '#/components/responses/NotificaRicevuta'
 
-              Potrebbe aver senso ritornare effettivamente il CitizenStatus
-              in questo caso, con tutto l'oggetto CitizenAddress finale.
-            headers:
-              <<: *common-headers
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ACK'
-
-
-
-
-  /notifiche/domicili:
+  /domicili-modificati:
     get:
       description: |-
-        Pubblica l'elenco dei domicili digitali variati ad una certa data.
+        Pubblica l'elenco dei domicili digitali modificati ad una certa data.
 
         Le informazioni ritornate sono pre-calcolate giornalmente entro le ore 01:00.
 
         Q1. Questa operation è pubblicata da ANPR/IO o da INAD?
-      operationId: get_modified_addresses
+      operationId: get_notifiche_domicili
       tags:
         - app-io
         - ANPR
@@ -300,7 +312,7 @@ paths:
       responses:
         <<: *common-responses
         '200':
-          description: riscontro sullo stato del CITTADINO
+          description: Elenco dei domicili che sono stati modificati
           headers:
             <<: *common-headers
           content:
@@ -314,7 +326,7 @@ paths:
       - ANPR
       operationId: get_digital_addresses
       description: |-
-        Recupera domicili digitali dei CITTADINI registrati in inad_api_for_anpr.yaml
+        Recupera domicili digitali dei CITTADINI registrati in INAD
 
         [UC012](https://github.com/vintra73/verify_integration_INAD_with_ANPR-IO#uc012---recupero-elenco-domicili-digitali)
 
