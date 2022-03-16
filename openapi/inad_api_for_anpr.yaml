@@ -26,7 +26,11 @@ paths:
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
           schema: 
             $ref: '#/components/schemas/Codice_Fiscale'
-  
+      
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
+
       responses:
         '200':
           description: riscontro sullo stato del CITTADINO          
@@ -34,6 +38,11 @@ paths:
             application/json:
               schema: 
                 $ref: '#/components/schemas/Citizen_Status'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI  
         '400':
           description: BAD_REQUEST
           content:
@@ -76,6 +85,10 @@ paths:
           description: codice fiscale del CITTADINO per cui è chiesta l'azione
           schema:  
             $ref: '#/components/schemas/Codice_Fiscale'
+      
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
 
       requestBody:      
         required: true
@@ -86,11 +99,16 @@ paths:
 
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: conferma di presa in carico dell'azione richiesta          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/Respose_Action'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI 
         '400':
           description: BAD_REQUEST
           content:
@@ -145,10 +163,14 @@ paths:
           description: nuova e,ail di contatto del CITTADINO
           schema:  
             $ref: '#/components/schemas/Email'
+      
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
 
       responses:
         '200':
-            description: riscontro sullo stato del CITTADINO          
+            description: conferma di variazione dell'email di contatto del CITTADINO         
             content:
               application/json:
                 schema: 
@@ -202,14 +224,23 @@ paths:
           schema:
             type: string
             format: data
+      
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
 
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: lista dei domicili digitali modificati nello specifico giorno          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/List_Changed_Digital_Address'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI 
         '400':
           description: BAD_REQUEST
           content:
@@ -244,14 +275,23 @@ paths:
   /sync_digital_addresses:
     get:      
       description: recupera domicili digitali dei CITTADINI registrati in INAD
+      
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
 
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: lista dei domicili digitali eletti in INAD          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/List_Digital_Address'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI
         '400':
           description: BAD_REQUEST
           content:
@@ -295,9 +335,13 @@ paths:
           schema:  
             $ref: '#/components/schemas/Codice_Fiscale'        
 
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
+          
       responses:
         '200':
-            description: riscontro sullo stato del CITTADINO          
+            description: presa in carico         
             content:
               application/json:
                 schema: 
@@ -457,4 +501,15 @@ components:
             $ref: '#/components/schemas/Codice_Fiscale'
           digital_address:
             $ref: '#/components/schemas/Digital_Address'
-          
+    
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+
+    Agid-JWS-Signature:
+      type: apiKey
+      in: header
+      name: Agid-JWS-Signature
+      description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI       

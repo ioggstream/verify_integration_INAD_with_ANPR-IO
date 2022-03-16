@@ -11,7 +11,7 @@ info:
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
   version: 1.0.0
 servers:
-  - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
+  - url: xxxxxxxx
     description: Generated server url
   
 paths:
@@ -43,10 +43,14 @@ paths:
           description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
           schema: 
             $ref: '#/components/schemas/Request_Code'
+
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []    
         
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: presa in carico          
           content:
             application/json:
               schema: 
@@ -100,9 +104,13 @@ paths:
           schema:
             $ref: '#/components/schemas/Email'
 
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []  
+      
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: presa in carico          
           content:
             application/json:
               schema: 
@@ -148,9 +156,13 @@ paths:
             schema:
               $ref: '#/components/schemas/List_Changed_Digital_Address'
 
+      security:
+        - bearerAuth: []
+          Agid-JWS-Signature: []
+     
       responses:
         '200':
-          description: riscontro sullo stato del CITTADINO          
+          description: presa in carico          
           content:
             application/json:
               schema: 
@@ -281,3 +293,15 @@ components:
               - insert
               - update
               - delete
+
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      
+    Agid-JWS-Signature:
+      type: apiKey
+      in: header
+      name: Agid-JWS-Signature
+      description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI
