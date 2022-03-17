@@ -43,6 +43,8 @@ paths:
           description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
           schema: 
             $ref: '#/components/schemas/Request_Code'
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
 
       security:
         - bearerAuth: []
@@ -50,11 +52,16 @@ paths:
         
       responses:
         '200':
-          description: presa in carico          
+          description: aggiornamento effettuato          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ACK'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI 
         '400':
           description: BAD_REQUEST
           content:
@@ -103,6 +110,8 @@ paths:
           description: nuovo stato del CITTADINO
           schema:
             $ref: '#/components/schemas/Email'
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
 
       security:
         - bearerAuth: []
@@ -110,11 +119,16 @@ paths:
       
       responses:
         '200':
-          description: presa in carico          
+          description: aggiornamento effettuato          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ACK'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI 
         '400':
           description: BAD_REQUEST
           content:
@@ -152,9 +166,9 @@ paths:
 
       requestBody:
         content:          
-          application/json:
+          application/json:            
             schema:
-              $ref: '#/components/schemas/List_Changed_Digital_Address'
+              $ref: '#/components/schemas/Response_List_Changed_Digital_Address'
 
       security:
         - bearerAuth: []
@@ -162,11 +176,16 @@ paths:
      
       responses:
         '200':
-          description: presa in carico          
+          description: aggiornamento effettuato          
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ACK'
+          headers:
+            Agid-JWS-Signature:
+              schema:
+                type: string
+                description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI 
         '400':
           description: BAD_REQUEST
           content:
@@ -218,6 +237,11 @@ components:
             - '500'
             - '503'
 
+    ID_Request:
+        type: string
+        pattern: ^INAD_[0-9]{8,8}_[0-9]{10,10}
+        description: identificativo unico della request composto da ANPR come indicazione del sistema che ha effettuato la richiesta, aaaammdd data di riferimento e nnnnnnnnnn progressivo della richiesta
+
     Codice_Fiscale: 
       type: string
       pattern: /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
@@ -244,11 +268,19 @@ components:
     Request_Code:
       type: string
       pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
-  
+   
     ACK:
-      type: string
-      enum:
-        - chargeMade
+      type: object
+      required:
+        - description
+        - id_request
+      properties:
+        description:   
+          type: string
+          enum:
+            - chargeMade
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
 
     Citizen_Change_Status_Reason:
       type: string
@@ -293,6 +325,16 @@ components:
               - insert
               - update
               - delete
+    Response_List_Changed_Digital_Address:
+      type: object      
+      required:
+        - id_request
+        - list_changed_digital_address
+      properties:
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
+        list_changed_digital_address:
+          $ref: '#/components/schemas/List_Changed_Digital_Address'
 
   securitySchemes:
     bearerAuth:

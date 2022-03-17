@@ -26,6 +26,8 @@ paths:
           description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
           schema: 
             $ref: '#/components/schemas/Codice_Fiscale'
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
       
       security:
         - bearerAuth: []
@@ -37,7 +39,7 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/Citizen_Status'
+                $ref: '#/components/schemas/Response_Citizen_Status'
           headers:
             Agid-JWS-Signature:
               schema:
@@ -85,6 +87,8 @@ paths:
           description: codice fiscale del CITTADINO per cui è chiesta l'azione
           schema:  
             $ref: '#/components/schemas/Codice_Fiscale'
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
       
       security:
         - bearerAuth: []
@@ -103,7 +107,7 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/Respose_Action'
+                $ref: '#/components/schemas/Response_Effect_Action'
           headers:
             Agid-JWS-Signature:
               schema:
@@ -163,6 +167,8 @@ paths:
           description: nuova e,ail di contatto del CITTADINO
           schema:  
             $ref: '#/components/schemas/Email'
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
       
       security:
         - bearerAuth: []
@@ -175,6 +181,11 @@ paths:
               application/json:
                 schema: 
                   $ref: '#/components/schemas/ACK'
+            headers:
+              Agid-JWS-Signature:
+                schema:
+                  type: string
+                  description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI
         '400':
           description: BAD_REQUEST
           content:
@@ -224,6 +235,8 @@ paths:
           schema:
             type: string
             format: data
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
       
       security:
         - bearerAuth: []
@@ -235,7 +248,7 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/List_Changed_Digital_Address'
+                $ref: '#/components/schemas/Response_List_Changed_Digital_Address'
           headers:
             Agid-JWS-Signature:
               schema:
@@ -276,6 +289,10 @@ paths:
     get:      
       description: recupera domicili digitali dei CITTADINI registrati in INAD
       
+      parameters:
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'
+
       security:
         - bearerAuth: []
           Agid-JWS-Signature: []
@@ -286,7 +303,7 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/List_Digital_Address'
+                $ref: '#/components/schemas/Response_List_Digital_Address'
           headers:
             Agid-JWS-Signature:
               schema:
@@ -333,7 +350,9 @@ paths:
           required: true
           description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
           schema:  
-            $ref: '#/components/schemas/Codice_Fiscale'        
+            $ref: '#/components/schemas/Codice_Fiscale'     
+        - id_request:
+          $ref: '#/components/schemas/ID_Request'   
 
       security:
         - bearerAuth: []
@@ -346,6 +365,11 @@ paths:
               application/json:
                 schema: 
                   $ref: '#/components/schemas/ACK'
+            headers:
+              Agid-JWS-Signature:
+                schema:
+                  type: string
+                  description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI
         '400':
           description: BAD_REQUEST
           content:
@@ -403,6 +427,11 @@ components:
             - '500'
             - '503'
 
+    ID_Request:
+        type: string
+        pattern: ^ANPR_[0-9]{8,8}_[0-9]{10,10}
+        description: identificativo unico della request composto da ANPR come indicazione del sistema che ha effettuato la richiesta, aaaammdd data di riferimento e nnnnnnnnnn progressivo della richiesta
+
     Codice_Fiscale: 
       type: string
       pattern: /^(?:[A-Z][AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}(?:[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[15MR][\dLMNP-V]|[26NS][0-8LMNP-U])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM]|[AC-EHLMPR-T][26NS][9V])|(?:[02468LNQSU][048LQU]|[13579MPRTV][26NS])B[26NS][9V])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i
@@ -418,6 +447,17 @@ components:
         - awaitingPublication
         - waitingOfficeCancellation
         - digitalDomicilePresent
+
+    Response_Citizen_Status:
+      type: object      
+      required:
+        - id_request
+        - citizen_status
+      properties:
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
+        citizen_status:
+          $ref: '#/components/schemas/Citizen_Status'
 
     Operation:
       type: string
@@ -458,7 +498,7 @@ components:
       type: string
       pattern: ^(INAD|ANPR|APPIO)_[0-9]{10,10}
   
-    Respose_Action:
+    Effect_Action:
       type: object
       properties:        
         citizen_status:
@@ -466,10 +506,29 @@ components:
         request_code:
           $ref: '#/components/schemas/Request_Code'
 
+    Response_Effect_Action:
+      type: object      
+      required:
+        - id_request
+        - effect_action
+      properties:
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
+        effect_action:
+          $ref: '#/components/schemas/Effect_Action'
+
     ACK:
-      type: string
-      enum:
-        - chargeMade
+      type: object
+      required:
+        - description
+        - id_request
+      properties:
+        description:   
+          type: string
+          enum:
+            - chargeMade
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
 
     List_Changed_Digital_Address:
       type: array
@@ -490,6 +549,17 @@ components:
               - update
               - delete
 
+    Response_List_Changed_Digital_Address:
+      type: object      
+      required:
+        - id_request
+        - list_changed_digital_address
+      properties:
+        id_request:
+          $ref: '#/components/schemas/ID_Request'
+        list_changed_digital_address:
+          $ref: '#/components/schemas/List_Changed_Digital_Address'
+    
     List_Digital_Address:
       type: array
       items:
@@ -501,7 +571,18 @@ components:
             $ref: '#/components/schemas/Codice_Fiscale'
           digital_address:
             $ref: '#/components/schemas/Digital_Address'
-    
+
+    Response_List_Digital_Address:
+        type: object      
+        required:
+          - id_request
+          - list_digital_address
+        properties:
+          id_request:
+            $ref: '#/components/schemas/ID_Request'
+          list_digital_address:
+            $ref: '#/components/schemas/List_Digital_Address'
+      
   securitySchemes:
     bearerAuth:
       scheme: bearer
