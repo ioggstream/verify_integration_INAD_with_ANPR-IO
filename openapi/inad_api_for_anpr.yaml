@@ -27,6 +27,7 @@ paths:
           schema: 
             $ref: '#/components/schemas/Codice_Fiscale'
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'
       
       security:
@@ -88,6 +89,7 @@ paths:
           schema:  
             $ref: '#/components/schemas/Codice_Fiscale'
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'
       
       security:
@@ -168,6 +170,7 @@ paths:
           schema:  
             $ref: '#/components/schemas/Email'
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'
       
       security:
@@ -236,6 +239,7 @@ paths:
             type: string
             format: data
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'
       
       security:
@@ -291,6 +295,7 @@ paths:
       
       parameters:
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'
 
       security:
@@ -352,6 +357,7 @@ paths:
           schema:  
             $ref: '#/components/schemas/Codice_Fiscale'     
         - id_request:
+          in: query
           $ref: '#/components/schemas/ID_Request'   
 
       security:
@@ -454,7 +460,7 @@ components:
         - id_request
         - citizen_status
       properties:
-        id_request:
+        id_request:        
           $ref: '#/components/schemas/ID_Request'
         citizen_status:
           $ref: '#/components/schemas/Citizen_Status'
