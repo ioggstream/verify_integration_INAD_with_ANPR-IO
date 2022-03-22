@@ -15,7 +15,7 @@ servers:
     description: Generated server url
 
 paths:
-  /{codice_fiscale}/status_check:
+  /status_check/{codice_fiscale}:
     get:
       description: verifica lo stato di un CITTADINO
 
@@ -60,9 +60,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-
-  /{codice_fiscale}/request_action:
-    put:
+  /request_action/{codice_fiscale}:
+    post:
       description: richiesta di avvio azione di elezione, modifica o cancellazione volontaria del dominicio digitale di un CITTADINO
 
       parameters:
@@ -113,9 +112,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-
-  /{codice_fiscale}/changed_email:
-    put:
+  /changed_email/{codice_fiscale}:
+    post:
       description: richiesta di cambiamento email di contatto di un CITTADINO
 
       parameters:
@@ -159,8 +157,7 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-
-  /{codice_fiscale}/digital_address:
+  /digital_address/{codice_fiscale}:
     get:
       description: richiesta del domicilio digitale di un CITTADINO
 
@@ -204,9 +201,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-
-  /{codice_fiscale}/appIO_abandonment:
-    put:
+  /appIO_abandonment/{codice_fiscale}:
+    post:
       description: presa in carico
 
       parameters:
@@ -243,7 +239,6 @@ paths:
           $ref: '#/components/responses/500'
         '503':
           $ref: '#/components/responses/503'
-
 
   /recovers_changed_digital_addresses:
     get:

@@ -15,8 +15,8 @@ servers:
     description: Generated server url
 tags: []
 paths:
-  /{codice_fiscale}/receive_status_change:
-    put:
+  /receive_status_change/{codice_fiscale}:
+    post:
       description: ricevi lo stato di un CITTADINO
       parameters:
         - name: codice_fiscale
@@ -72,8 +72,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /{codice_fiscale}/receive_changed_email:
-    put:
+  /receive_changed_email/{codice_fiscale}:
+    post:
       description: ricevi cambiamento email di contantto di un CITTADINO
 
       parameters:
@@ -122,7 +122,7 @@ paths:
           $ref: '#/components/responses/503'
 
   /receive_changed_digital_addresses:
-    put:
+    post:
       description: ricevi variazioni di domicili digitali delle ultime 24h
 
       requestBody:

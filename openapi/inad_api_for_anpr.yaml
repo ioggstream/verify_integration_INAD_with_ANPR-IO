@@ -15,7 +15,7 @@ servers:
     description: Generated server url
 tags: []
 paths:
-  /{codice_fiscale}/status_check:
+  /status_check/{codice_fiscale}:
     get:
       description: verifica lo stato di un CITTADINO
 
@@ -58,8 +58,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /{codice_fiscale}/request_action:
-    put:
+  /request_action/{codice_fiscale}:
+    post:
       description: richiesta di avvio azione di elezione, modifica o cancellazione volontaria del dominicio digitale di un CITTADINO
 
       parameters:
@@ -108,8 +108,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /{codice_fiscale}/changed_email:
-    put:
+  /changed_email/{codice_fiscale}:
+    post:
       description: richiesta di cambiamento email di contatto di un CITTADINO
 
       parameters:
@@ -199,6 +199,7 @@ paths:
           $ref: '#/components/responses/500'
         '503':
           $ref: '#/components/responses/503'
+  
   /sync_digital_addresses:
     get:
       description: recupera domicili digitali dei CITTADINI registrati in INAD
@@ -236,8 +237,8 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /{codice_fiscale}/death_notification:
-    put:
+  /death_notification/{codice_fiscale}:
+    post:
       description: notifica di decesso del CITTADINO
 
       parameters:
