@@ -13,39 +13,32 @@ info:
 servers:
   - url: xxxxxxxx
     description: Generated server url
-tags: []
+tags:
+- name: bulk
+  description: Operazioni su più di un domicilio.
+- name: cittadino
+  description: Operazioni su un singolo cittadino.
 paths:
   /receive_status_change/{codice_fiscale}:
     post:
-      description: ricevi lo stato di un CITTADINO
+      operationId: receive_status_change
+      tags:
+        - cittadino
+      description: |-
+        Notifica lo stato di un CITTADINO identificativo tramite il codice fiscale.
       parameters:
         - name: codice_fiscale
           in: path
           required: true
-          description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
+          description: codice fiscale del CITTADINO
           schema:
             $ref: '#/components/schemas/Codice_Fiscale'
-        - name: citizen_status
-          in: query
-          required: true
-          description: nuovo stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Citizen_Status'
-        - name: change_status_reason
-          in: query
-          required: true
-          description: motivazione del cambiamento di stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Citizen_Change_Status_Reason'
-        - name: request_code
-          in: query
-          description: request code generato da INAD per l'azione richiesta da INAD, ANPR o AppIO che ha determinato il cambiamento di stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Request_Code'
-        - name: id_request
-          in: query
-          schema:
-            $ref: '#/components/schemas/ID_Request'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifyStatus'
       security:
         - bearerAuth: []
           Agid-JWS-Signature: []
@@ -74,25 +67,24 @@ paths:
 
   /receive_changed_email/{codice_fiscale}:
     post:
-      description: ricevi cambiamento email di contantto di un CITTADINO
-
+      operationId: receive_changed_email
+      tags:
+        - cittadino
+      description: |-
+        Notifica la nuova mail associata a un CITTADINO identificativo tramite il codice fiscale.
       parameters:
         - name: codice_fiscale
           in: path
           required: true
-          description: codice fiscale del CITTADINO per cui è chiesta verifica dello stato
+          description: codice fiscale del CITTADINO
           schema:
             $ref: '#/components/schemas/Codice_Fiscale'
-        - name: email
-          in: query
-          required: true
-          description: nuovo stato del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Email'
-        - name: id_request
-          in: query
-          schema:
-            $ref: '#/components/schemas/ID_Request'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifyEmail'
 
       security:
         - bearerAuth: []
@@ -124,8 +116,11 @@ paths:
   /receive_changed_digital_addresses:
     post:
       description: ricevi variazioni di domicili digitali delle ultime 24h
-
+      operationId: receive_changed_digital_addresses
+      tags:
+      - bulk
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -216,6 +211,46 @@ components:
           schema:
             $ref: '#/components/schemas/Errore'
   schemas:
+    NotifyStatus:
+      type: object
+      additionalProperties: false
+      description: |-
+        La notifica di variazione dello status di un CITTADINO.
+
+        La notifica contiene l'identificativo ed il codice della richiesta
+        originariamente fatta dal CITTADINO.
+      required:
+        - id_request
+        - request_code
+        - citizen_status
+        - reason
+      properties:
+        id_request:
+            $ref: '#/components/schemas/ID_Request'
+        citizen_status:
+          $ref: '#/components/schemas/Citizen_Status'
+        reason:
+          $ref: '#/components/schemas/Citizen_Change_Status_Reason'
+        request_code:
+          $ref: '#/components/schemas/Request_Code'
+    NotifyEmail:
+      type: object
+      additionalProperties: false
+      description: |-
+        La notifica di variazione della email di contatto di un CITTADINO.
+
+        NOTA: a differenza di `NotifyStatus` la notifica contiene
+        l'identificativo della richiesta ma non il codice della richiesta.
+      required:
+        - id_request
+        - email
+      properties:
+        email:
+            $ref: '#/components/schemas/Email'
+        id_request:
+            $ref: '#/components/schemas/ID_Request'
+
+
     Errore:
       required:
         - status

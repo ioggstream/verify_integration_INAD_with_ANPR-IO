@@ -13,12 +13,18 @@ info:
 servers:
   - url: https://api.inad.gov.it/rest/inad/v1/integration_ANPR_AppIO
     description: Generated server url
-tags: []
+tags:
+- name: cittadino
+  description: Opeazioni su un singolo cittadino.
+- name: bulk
+  description: Opeazioni su una serie di cittadini.
 paths:
   /status_check/{codice_fiscale}:
     get:
       description: verifica lo stato di un CITTADINO
-
+      tags:
+        - cittadino
+      operationId: status_check
       parameters:
         - name: codice_fiscale
           in: path
@@ -60,7 +66,12 @@ paths:
 
   /request_action/{codice_fiscale}:
     post:
-      description: richiesta di avvio azione di elezione, modifica o cancellazione volontaria del dominicio digitale di un CITTADINO
+      description: |-
+        richiesta di avvio azione di elezione, modifica o cancellazione
+        volontaria del dominicio digitale di un CITTADINO
+      operationId: request_action
+      tags:
+      - cittadino
 
       parameters:
         - name: codice_fiscale
@@ -69,10 +80,6 @@ paths:
           description: codice fiscale del CITTADINO per cui è chiesta l'azione
           schema:
             $ref: '#/components/schemas/Codice_Fiscale'
-        - name: id_request
-          in: query
-          schema:
-            $ref: '#/components/schemas/ID_Request'
 
       security:
         - bearerAuth: []
@@ -108,9 +115,12 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /changed_email/{codice_fiscale}:
+  /change_email/{codice_fiscale}:
     post:
       description: richiesta di cambiamento email di contatto di un CITTADINO
+      operationId: change_email
+      tags:
+      - cittadino
 
       parameters:
         - name: codice_fiscale
@@ -119,20 +129,15 @@ paths:
           description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
           schema:
             $ref: '#/components/schemas/Codice_Fiscale'
-        - name: email
-          in: query
-          required: true
-          description: nuova e,ail di contatto del CITTADINO
-          schema:
-            $ref: '#/components/schemas/Email'
-        - name: id_request
-          in: query
-          schema:
-            $ref: '#/components/schemas/ID_Request'
       security:
         - bearerAuth: []
           Agid-JWS-Signature: []
-
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifyEmail'
       responses:
         '200':
             description: conferma di variazione dell'email di contatto del CITTADINO
@@ -159,15 +164,19 @@ paths:
   /recovers_changed_digital_addresses:
     get:
       description: recupera variazioni domicili digitali digitali ad uno specifico giorno
-
+      operationId: recovers_changed_digital_addresses
+      tags:
+      - bulk
       parameters:
-        - name: day
+        - name: since
           in: query
           required: true
-          description: data di riferimento delle variazioni dei domicili digitali richieste
+          description: |-
+            data di riferimento delle variazioni dei domicili digitali richieste
           schema:
             type: string
-            format: data
+            format: date
+            example: '2020-01-01'
         - name: id_request
           in: query
           schema:
@@ -199,13 +208,19 @@ paths:
           $ref: '#/components/responses/500'
         '503':
           $ref: '#/components/responses/503'
-  
+
   /sync_digital_addresses:
     get:
-      description: recupera domicili digitali dei CITTADINI registrati in INAD
+      operationId: sync_digital_addresses
+      tags:
+        - bulk
+      description: |-
+        recupera domicili digitali dei CITTADINI registrati in INAD
+        a partire dall'identificativo di una particolare richiesta.
 
       parameters:
         - name: id_request
+          required: true
           in: query
           schema:
             $ref: '#/components/schemas/ID_Request'
@@ -237,21 +252,31 @@ paths:
         '503':
           $ref: '#/components/responses/503'
 
-  /death_notification/{codice_fiscale}:
+  /death_notification:
     post:
       description: notifica di decesso del CITTADINO
-
-      parameters:
-        - name: codice_fiscale
-          in: path
-          required: true
-          description: codice fiscale del CITTADINO per cui è richiesto l'aggiornamento della email di contatto
-          schema:
-            $ref: '#/components/schemas/Codice_Fiscale'
-        - name: id_request
-          in: query
-          schema:
-            $ref: '#/components/schemas/ID_Request'
+      tags:
+      - cittadino
+      operationId: death_notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              description: |-
+                Una notifica di decesso del CITTADINO.
+                Poiché non c'è un metodo GET associato a questo path,
+                conviene inviare le informazioni tramite il payload.
+              required:
+                - codice_fiscale
+                - id_request
+              properties:
+                codice_fiscale:
+                  $ref: '#/components/schemas/Codice_Fiscale'
+                id_request:
+                  $ref: '#/components/schemas/ID_Request'
 
       security:
         - bearerAuth: []
@@ -368,7 +393,22 @@ components:
           description: Descrizione di dettaglio dello specifico problema verificatosi
           example: <detail_error>
           maxLength: 1024
+    NotifyEmail:
+      type: object
+      additionalProperties: false
+      description: |-
+        La notifica di variazione della email di contatto di un CITTADINO.
 
+        NOTA: a differenza di `NotifyStatus` la notifica contiene
+        l'identificativo della richiesta ma non il codice della richiesta.
+      required:
+        - id_request
+        - email
+      properties:
+        email:
+            $ref: '#/components/schemas/Email'
+        id_request:
+            $ref: '#/components/schemas/ID_Request'
     ID_Request:
         type: string
         pattern: ^ANPR_[0-9]{8,8}_[0-9]{10,10}
@@ -424,6 +464,10 @@ components:
 
     Request_Action:
       type: object
+      additionalProperties: false
+      description: |-
+        La richiesta di variazione dello stato di un CITTADINO,
+        che contiene l'identificativo della richiesta.
       properties:
         operation:
           $ref: '#/components/schemas/Operation'
@@ -435,6 +479,8 @@ components:
           $ref: '#/components/schemas/Email'
         digital_address:
           $ref: '#/components/schemas/Digital_Address'
+        id_request:
+            $ref: '#/components/schemas/ID_Request'
 
     Request_Code:
       type: string
