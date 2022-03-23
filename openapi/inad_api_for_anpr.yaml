@@ -576,9 +576,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
       type: http
-
+      description: |-
+        Implementazione conforme ad RFC8725.
     Agid-JWS-Signature:
       type: apiKey
       in: header
       name: Agid-JWS-Signature
-      description: Il valore di questo header è un JWS, vedi il pattern di sicurezza [INTEGRITY_REST_01] del MoDI
+      description: |-
+        Header della firma di JWS.
+        Il valore di questo header è una firma JWS.
+        Vedere Modi  [integrity_rest_01] Integrità del payload del messaggio REST
